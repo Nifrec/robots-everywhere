@@ -8,3 +8,4 @@
 * Meeting Monday [1h]
 * Create this log [10 min]
 * Work on user description, goals, fallacies and software milestones [1:50h]
+* UML Use case diagram (30 min)
