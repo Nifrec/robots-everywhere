@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>720</x>
+      <y>63</y>
+      <w>162</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>*Variable*
+--
+- type: Class
+- name: str
+--
++ get_type(): Class
++ get_name(): str
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1026</x>
+      <y>63</y>
+      <w>306</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>*DatabaseWriter*
+--
+- conn: Connection
+- variables: Set[Variable]
+--
++ get_variables() -&gt; Iterable[Variable]
++ execute_sql(sql_command: str)
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>981</x>
+      <y>531</y>
+      <w>351</w>
+      <h>117</h>
+    </coordinates>
+    <panel_attributes>*QuestionSchedule*
+--
++ active_occurences:   Set[QuestionOccurence]
++ answered_occurences: Set[QuestionOccurence]
++ finished_occurences: Set[QUestionOccurence]
+--
++ generate_new_occurences_when_needed
++ store_answers_in_db()
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>873</x>
+      <y>72</y>
+      <w>171</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
++ variables</panel_attributes>
+    <additional_attributes>10.0;20.0;170.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>306</x>
+      <y>513</y>
+      <w>450</w>
+      <h>189</h>
+    </coordinates>
+    <panel_attributes>*RecurringQuestionSet*
+--
+- days: Set[WeekDay]
+- hour: int
+- minutes: int
+- variables: Set[Variable]
+--
++ get_days(): Set[WeekDay]
++ get_hour(): int
++ get_minutes(): int
++ get_variables(): Set[Variable]
++ is_due(current_time: float, previous_check: float): bool
++ generate_occurence(): QuestionOccurence
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>477</x>
+      <y>162</y>
+      <w>108</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Enumeration&gt;&gt;
+*WeekDay*
+--
+Monday: 0
+Tuesday: 1
+Wednesday: 2
+Thursday: 3
+Friday: 4
+Saturday: 5
+Sunday: 6
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>297</x>
+      <y>171</y>
+      <w>117</w>
+      <h>108</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Enumeration&gt;&gt;
+*QuestionStatus*
+--
+unanswered: 0
+answered: 1
+snoozed: 2
+cancelled: 3
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>684</x>
+      <y>792</y>
+      <w>477</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>*QuestionOccurence*
+--
+- status: QuestionStatus
+- questions: Set[Question]
+- snooze_time: int = 0
+--
++ get_status(): QuestionStatus
++ set_status(new_status: QuestionStatus)
++ snooze(minutes: int)
++ get_commands(db_writer: DatabaseWriter): Set[InsertCommand]
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>774</y>
+      <w>459</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>*Question*
+--
+- content: str
+- variable: Variable
+- answer: Any
+--
++ get_content(): str
++ get_variable(): Variable
++ get_answer(): Any
+
++ register_answer(ans: str)
++ extract_command(db_writer: DatabaseWriter): InsertCommand
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>450</x>
+      <y>819</y>
+      <w>252</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
++ questions</panel_attributes>
+    <additional_attributes>10.0;20.0;260.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1431</x>
+      <y>306</y>
+      <w>216</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*Command*/
+--
+- is_executed: bool = False
+- database: DatabaseWriter
+--
++ execute()
++ revert()
++ get_is_executed(): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1422</x>
+      <y>522</y>
+      <w>234</w>
+      <h>162</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*InsertCommand*/
+--
+- is_executed: bool = False
+- database: DatabaseWriter
+- execute_sql_code: str
+- revert_sql_code: str = None
+--
++ execute()
++ revert()
++ get_is_executed(): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1323</x>
+      <y>144</y>
+      <w>225</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;230.0;180.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1530</x>
+      <y>423</y>
+      <w>27</w>
+      <h>117</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>513</x>
+      <y>153</y>
+      <w>297</w>
+      <h>378</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
++ variables</panel_attributes>
+    <additional_attributes>310.0;10.0;10.0;400.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>747</x>
+      <y>576</y>
+      <w>252</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*</panel_attributes>
+    <additional_attributes>10.0;10.0;260.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>918</x>
+      <y>639</y>
+      <w>108</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*</panel_attributes>
+    <additional_attributes>10.0;170.0;10.0;100.0;100.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1242</x>
+      <y>828</y>
+      <w>144</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>*BackendQuestioner*
+--
+
+--
+
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>684</x>
+      <y>936</y>
+      <w>477</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Only allow sets of questions to be done together?
+(Can always just use a single question in QuestionOccurence,
+but we could enforce this)
+bg=#f5df9a</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
