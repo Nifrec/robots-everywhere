@@ -28,6 +28,3 @@ DB_FILENAME = "robots_db_" + os.getlogin() + ".db"
 
 # Location where the database file (.db) is stored
 DB_FILE_LOCATION = os.path.join(PROJECT_ROOT_DIR, DB_FILENAME)
-print(DB_FILE_LOCATION)
-
-print()
