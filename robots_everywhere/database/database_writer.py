@@ -18,6 +18,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Files for setting up a SQLite database, storing and retrieving information.
 """
+import os
+import sqlite3
+
+import robots_everywhere.settings as settings
 
 TYPE_TO_STR = {
     str: 'str',
@@ -49,3 +53,27 @@ class Variable:
     
     def __str__(self) -> str:
         return f"Var {self.name}: {TYPE_TO_STR[self.var_type]}"
+
+def connect_to_db() -> sqlite3.Connection:
+    if not os.path.exists(settings.DB_FILE_LOCATION):
+        conn = sqlite3.connect(settings.DB_FILE_LOCATION)
+        setup_database(conn)
+    else:
+        conn = sqlite3.connect(settings.DB_FILE_LOCATION)
+
+def setup_database(conn: sqlite3.Connection):
+    conn.execute(
+        """
+        CREATE TABLE test_tab (
+            some_int INT PRIMARY KEY
+        )
+        """
+    )
+    conn.execute(
+        """
+        INSERT INTO test_tab
+        VALUES (10)
+        """
+    )
+
+connect_to_db()
