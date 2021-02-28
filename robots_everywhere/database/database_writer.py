@@ -28,6 +28,9 @@ from robots_everywhere.settings import TYPE_TO_STR
 class Variable:
 
     def __init__(self, var_type:type, name: str):
+        if var_type not in TYPE_TO_STR.keys():
+            raise ValueError(f"Unsupported variable type '{var_type}'")
+
         self.__name = name
         self.__var_type = var_type
 
@@ -66,7 +69,15 @@ def setup_vars_table(conn: sqlite3.Connection):
     )
     conn.commit()
 
-def add_var(conn: sqlite3.Connection, var_name: str, var_type: str):
-    timestamp = time.time()
+def add_var(conn: sqlite3.Connection, var: Variable):
+    timestamp = int(time.time())
+
+    query = """
+    INSERT INTO variables
+    VALUES (?, ?, ?);
+    """
+    params = (var.name, TYPE_TO_STR[var.var_type], timestamp)
+    conn.execute(query, params)
+    conn.commit()
 
 connect_to_db()
