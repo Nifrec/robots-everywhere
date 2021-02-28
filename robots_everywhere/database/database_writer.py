@@ -20,6 +20,7 @@ Files for setting up a SQLite database, storing and retrieving information.
 """
 import os
 import sqlite3
+import time
 
 import robots_everywhere.settings as settings
 
@@ -54,26 +55,27 @@ class Variable:
     def __str__(self) -> str:
         return f"Var {self.name}: {TYPE_TO_STR[self.var_type]}"
 
-def connect_to_db() -> sqlite3.Connection:
-    if not os.path.exists(settings.DB_FILE_LOCATION):
-        conn = sqlite3.connect(settings.DB_FILE_LOCATION)
-        setup_database(conn)
+def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
+    if not os.path.exists(db_file):
+        conn = sqlite3.connect(db_file)
+        setup_vars_table(conn)
     else:
-        conn = sqlite3.connect(settings.DB_FILE_LOCATION)
+        conn = sqlite3.connect(db_file)
+    return conn
 
-def setup_database(conn: sqlite3.Connection):
+def setup_vars_table(conn: sqlite3.Connection):
     conn.execute(
         """
-        CREATE TABLE test_tab (
-            some_int INT PRIMARY KEY
+        CREATE TABLE variables (
+            var_name INT PRIMARY KEY,
+            var_type TEXT NOT NULL,
+            timestamp INT NOT NULL 
         )
         """
     )
-    conn.execute(
-        """
-        INSERT INTO test_tab
-        VALUES (10)
-        """
-    )
+    conn.commit()
+
+def add_var(conn: sqlite3.Connection, var_name: str, var_type: str):
+    timestamp = time.time()
 
 connect_to_db()
