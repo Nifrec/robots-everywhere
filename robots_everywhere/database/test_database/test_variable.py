@@ -51,6 +51,16 @@ class VariableTestCase(unittest.TestCase):
         result = str(var)
         self.assertEqual(result, expected)
 
+    def test_invalid_var_type(self):
+        """
+        The type associated with a new variable must be a value in 
+        settings.TYPE_TO_STR.
+        """
+        invalid_type = "rock"
+        with self.assertRaises(ValueError):
+            Variable(invalid_type, "test")
+
+
     
 
 if __name__ == "__main__":

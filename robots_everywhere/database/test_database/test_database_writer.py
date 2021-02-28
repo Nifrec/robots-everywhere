@@ -29,7 +29,7 @@ from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")
 
-class DatabaseTestCase(unittest.TestCase):
+class  ConnectToDBTestCase(unittest.TestCase):
 
 
     def test_init_db_file_created(self):
@@ -68,7 +68,9 @@ class DatabaseTestCase(unittest.TestCase):
         df = pd.read_sql(query, conn)
         self.assertEqual(len(df), 0)
         
+class AddVarsTestCase(unittest.TestCase):
 
+    
 
 def remove_database(db_file:str = TEST_DB_NAME):
     """
