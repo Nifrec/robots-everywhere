@@ -23,16 +23,7 @@ import sqlite3
 import time
 
 import robots_everywhere.settings as settings
-
-TYPE_TO_STR = {
-    str: 'str',
-    float: 'flaot',
-    int: 'int',
-    list: 'list',
-    tuple: 'tuple',
-    set: 'set',
-    dict: 'dict'
-}
+from robots_everywhere.settings import TYPE_TO_STR
 
 class Variable:
 
