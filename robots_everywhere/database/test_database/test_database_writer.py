@@ -31,6 +31,7 @@ from robots_everywhere.database.database_writer import connect_to_db
 from robots_everywhere.database.database_writer import add_var
 from robots_everywhere.database.database_writer import get_all_vars
 from robots_everywhere.database.database_writer import insert_new_var_value
+from robots_everywhere.database.database_writer import DatabaseWriter
 from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")
@@ -255,7 +256,33 @@ class InsertVariableValueTestCase(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             insert_new_var_value(self.conn, another_var, new_value)
 
-    
+class DatabaseWriterTestCase(unittest.TestCase):
+
+    def setUp(self):
+        remove_database(TEST_DB_NAME)
+        self.db = DatabaseWriter(TEST_DB_NAME)
+
+    def test_get_variables_empty(self):
+        """
+        Base case: no existing variables should return an empty tuple.
+        """
+        expected = ()
+        result = self.db.variables
+        self.assertTupleEqual(expected, result)
+
+    def test_get_variables_not_empty(self):
+        """
+        Base case: two variables in db should return both (in order).
+        """
+        var_1 = Variable(int, "v1")
+        var_2 = Variable(str, "v2")
+
+        self.db.create_new_var(var_1)
+        self.db.create_new_var(var_2)
+
+        expected = (var_1, var_2)
+        result = self.db.variables
+        self.assertTupleEqual(expected, result)
     
 if __name__ == "__main__":
     unittest.main()
