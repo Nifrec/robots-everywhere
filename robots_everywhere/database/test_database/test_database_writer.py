@@ -206,10 +206,10 @@ class InsertVariableValueTestCase(unittest.TestCase):
     def test_insert_invalid_value(self):
         """
         Inserting a float as a value in a table of an int Variable
-        should raise an error.
+        should raise an error. A ValueError.
         """
         invalid_value = 13.5 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             insert_new_var_value(self.conn, self.var, invalid_value)
 
     def test_insert_invalid_var_1(self):
