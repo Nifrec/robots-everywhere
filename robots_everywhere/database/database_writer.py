@@ -157,4 +157,16 @@ def insert_new_var_value(conn: sqlite3.Connection,
     The provided variable should exist, and the type of new_value
     must match the type of the Variable.
     """
-    pass
+    if var not in get_all_vars(conn):
+        raise RuntimeError(f"Variable {var} not known in database")
+    if (timestamp < 0) or not isinstance(timestamp, int):
+        raise ValueError(f"Timestamp should be a nonnegative integer")
+    if not isinstance(new_value, var.var_type):
+        raise ValueError(f"Type of [new_value] does not match variable")
+
+    query = f"""
+    INSERT INTO {var.name} (value, timestamp)
+    VALUES (?, ?)
+    """
+    conn.execute(query, (new_value, timestamp))
+    conn.commit()
