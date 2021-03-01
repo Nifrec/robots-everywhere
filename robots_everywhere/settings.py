@@ -38,3 +38,8 @@ TYPE_TO_STR = {
     set: 'set',
     dict: 'dict'
 }
+
+GET_ALL_VARS_QUERY = """
+SELECT var_type, var_name
+FROM variables;
+"""
