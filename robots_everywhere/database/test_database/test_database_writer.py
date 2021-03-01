@@ -26,7 +26,7 @@ import sqlite3
 import pandas as pd
 from robots_everywhere import settings
 
-from robots_everywhere.database.database_writer import Variable, connect_to_db, add_var
+from robots_everywhere.database.database_writer import Variable, connect_to_db, add_var, get_all_vars
 from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")
@@ -64,10 +64,29 @@ class ConnectToDBTestCase(unittest.TestCase):
         df = pd.read_sql(query, self.conn)
         self.assertEqual(len(df), 0)
 
-class GetAllVars(unittest.TestCase):
+class GetAllVarsTestCase(unittest.TestCase):
 
-    def todo(self):
-        self.fail("TODO")
+    def setUp(self):
+        remove_database(TEST_DB_NAME)
+        self.conn = connect_to_db(TEST_DB_NAME)
+
+    def test_no_vars_present(self):
+        result = get_all_vars(self.conn)
+        self.assertEqual(len(result), 0)
+    
+    def test_two_vars_present(self):
+        var_1 = Variable(int, "some_int")
+        var_2 = Variable(str, "some_str")
+
+        add_var(self.conn, var_1)
+        add_var(self.conn, var_2)
+
+        result = get_all_vars(self.conn)
+        self.assertEqual(len(result), 2)
+
+        self.assertEqual(var_1, result[0])
+        self.assertEqual(var_2, result[1])
+
 
 class AddVarsTestCase(unittest.TestCase):
 

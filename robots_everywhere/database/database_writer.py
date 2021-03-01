@@ -22,6 +22,7 @@ import os
 import sqlite3
 import time
 from typing import Tuple
+import pandas as pd
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
@@ -77,6 +78,10 @@ def setup_vars_table(conn: sqlite3.Connection):
     conn.commit()
 
 def add_var(conn: sqlite3.Connection, var: Variable):
+
+    if var.name in map(lambda x: x.name, get_all_vars(conn)):
+        raise RuntimeError("Variable name already in database")
+
     timestamp = int(time.time())
 
     query = """
@@ -88,6 +93,10 @@ def add_var(conn: sqlite3.Connection, var: Variable):
     conn.commit()
 
 def get_all_vars(conn: sqlite3.Connection) -> Tuple[Variable]:
-    pass
+    df = pd.read_sql(settings.GET_ALL_VARS_QUERY, conn)
+    variables = []
+    for row_idx in range(len(df)):
+        row = df.loc[row_idx, :]
+        variables.append(Variable(eval(row[0]), row[1]))
+    return tuple(variables)
 
-connect_to_db()
