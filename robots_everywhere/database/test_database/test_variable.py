@@ -60,6 +60,31 @@ class VariableTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             Variable(invalid_type, "test")
 
+    def test__eq__1(self):
+        """
+        Both inputs should be equal.
+        """
+        var_1 = Variable(str, "my_var")
+        var_2 = Variable(str,"my_var")
+        self.assertEqual(var_1, var_2)
+
+    def test__eq__2(self):
+        """
+        Name different.
+        """
+        var_1 = Variable(str, "my_var")
+        var_2 = Variable(str, "my_other_var")
+        self.assertNotEqual(var_1, var_2)
+
+    def test__eq__3(self):
+        """
+        Type different.
+        """
+        var_1 = Variable(str, "my_var")
+        var_2 = Variable(int, "my_var")
+        self.assertNotEqual(var_1, var_2)
+
+
 
     
 

@@ -21,6 +21,7 @@ Files for setting up a SQLite database, storing and retrieving information.
 import os
 import sqlite3
 import time
+from typing import Tuple
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
@@ -48,6 +49,12 @@ class Variable:
     
     def __str__(self) -> str:
         return f"Var {self.name}: {TYPE_TO_STR[self.var_type]}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Variable):
+            return False
+        else:
+            return other.name == self.name and other.var_type == self.var_type
 
 def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
     if not os.path.exists(db_file):
@@ -79,5 +86,8 @@ def add_var(conn: sqlite3.Connection, var: Variable):
     params = (var.name, TYPE_TO_STR[var.var_type], timestamp)
     conn.execute(query, params)
     conn.commit()
+
+def get_all_vars(conn: sqlite3.Connection) -> Tuple[Variable]:
+    pass
 
 connect_to_db()
