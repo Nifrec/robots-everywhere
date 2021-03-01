@@ -26,7 +26,11 @@ import sqlite3
 import pandas as pd
 from robots_everywhere import settings
 
-from robots_everywhere.database.database_writer import Variable, connect_to_db, add_var, get_all_vars
+from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database_writer import connect_to_db
+from robots_everywhere.database.database_writer import add_var
+from robots_everywhere.database.database_writer import get_all_vars
+from robots_everywhere.database.database_writer import insert_new_var_value
 from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")
@@ -175,6 +179,83 @@ def get_all_rows_variables(conn: sqlite3.Connection) -> pd.DataFrame:
     """
     return pd.read_sql(query, conn)
 
+class InsertVariableValueTestCase(unittest.TestCase):
 
+    def setUp(self):
+        remove_database(TEST_DB_NAME)
+        self.conn = connect_to_db(TEST_DB_NAME)
+        self.var = Variable(int, "test_var")
+        add_var(self.conn, self.var)
+
+    def test_insert_valid_value(self):
+        new_value = 13
+        timestamp = 12345
+        insert_new_var_value(self.conn, self.var, new_value, timestamp)
+
+        test_query = """
+        SELECT value, timestamp
+        FROM test_var;
+        """
+
+        df = pd.read_sql(test_query, self.conn)
+
+        self.assertEqual(df.loc[0, "value"], new_value)
+        self.assertEqual(df.loc[0, "timestamp"], timestamp)
+
+
+    def test_insert_invalid_value(self):
+        """
+        Inserting a float as a value in a table of an int Variable
+        should raise an error.
+        """
+        invalid_value = 13.5 
+        with self.assertRaises(RuntimeError):
+            insert_new_var_value(self.conn, self.var, invalid_value)
+
+    def test_insert_invalid_var_1(self):
+        """
+        Corner case: giving a Variable instance with the same name as the one
+        of the table, but a different type. The input value corresponds to
+        this wrong type as well.
+        This should still raise an error! (a RuntimeError)
+        """
+        invalid_value = 13.5
+        fake_var = Variable(float, "test_var")
+        with self.assertRaises(RuntimeError):
+            insert_new_var_value(self.conn, fake_var, invalid_value)
+
+    def test_insert_invalid_var_2(self):
+        """
+        Corner case: giving a Variable instance with the same name as the one
+        of the table, but a different type. Even if the type of the actual
+        new value is correct, this should still raise a RuntimeError.
+        """
+        invalid_value = 13
+        fake_var = Variable(float, "test_var")
+        with self.assertRaises(RuntimeError):
+            insert_new_var_value(self.conn, fake_var, invalid_value)
+
+    def test_invalid_timestamp(self):
+        """
+        Timestamps must be nonnegative integers.
+        Raise a ValueError on negative timestamps.
+        """
+        new_value = 10
+        timestamp = -1
+        with self.assertRaises(ValueError):
+            insert_new_var_value(self.conn, self.var, new_value, timestamp)
+
+    def test_table_not_exits(self):
+        """
+        Cannot insert into the table of nonexisting variables!
+        Should raise a RuntimeError.
+        """
+        another_var = Variable(int, "another_var")
+        new_value = 10
+        with self.assertRaises(RuntimeError):
+            insert_new_var_value(self.conn, another_var, new_value)
+
+    
+    
 if __name__ == "__main__":
     unittest.main()

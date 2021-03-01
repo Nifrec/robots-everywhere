@@ -21,15 +21,16 @@ Files for setting up a SQLite database, storing and retrieving information.
 import os
 import sqlite3
 import time
-from typing import Tuple
+from typing import Any, Optional, Tuple
 import pandas as pd
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
 
+
 class Variable:
 
-    def __init__(self, var_type:type, name: str):
+    def __init__(self, var_type: type, name: str):
         if var_type not in TYPE_TO_STR.keys():
             raise ValueError(f"Unsupported variable type '{var_type}'")
 
@@ -44,10 +45,9 @@ class Variable:
     def name(self) -> str:
         return self.__name
 
-
     def __repr__(self) -> str:
         return f"Variable({TYPE_TO_STR[self.var_type]},{repr(self.name)})"
-    
+
     def __str__(self) -> str:
         return f"Var {self.name}: {TYPE_TO_STR[self.var_type]}"
 
@@ -57,6 +57,7 @@ class Variable:
         else:
             return other.name == self.name and other.var_type == self.var_type
 
+
 def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
     if not os.path.exists(db_file):
         conn = sqlite3.connect(db_file)
@@ -64,6 +65,7 @@ def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connectio
     else:
         conn = sqlite3.connect(db_file)
     return conn
+
 
 def setup_vars_table(conn: sqlite3.Connection):
     conn.execute(
@@ -77,10 +79,11 @@ def setup_vars_table(conn: sqlite3.Connection):
     )
     conn.commit()
 
+
 def add_var(conn: sqlite3.Connection, var: Variable):
     __add_to_variables_table(conn, var)
     __create_table_for_var(conn, var)
-    
+
 
 def __add_to_variables_table(conn: sqlite3.Connection, var: Variable):
     """
@@ -118,7 +121,6 @@ def __create_table_for_var(conn: sqlite3.Connection, var: Variable):
     conn.execute(query)
     conn.commit()
 
-    
 
 def __get_var_storage_class(var: Variable) -> str:
     """
@@ -136,7 +138,6 @@ def __get_var_storage_class(var: Variable) -> str:
         return "BLOB"
 
 
-
 def get_all_vars(conn: sqlite3.Connection) -> Tuple[Variable]:
     df = pd.read_sql(settings.GET_ALL_VARS_QUERY, conn)
     variables = []
@@ -145,3 +146,15 @@ def get_all_vars(conn: sqlite3.Connection) -> Tuple[Variable]:
         variables.append(Variable(eval(row[0]), row[1]))
     return tuple(variables)
 
+
+def insert_new_var_value(conn: sqlite3.Connection,
+                         var: Variable,
+                         new_value: Any,
+                         timestamp: Optional[int] = int(time.time())):
+    """
+    In the table associated with variable [var], insert a new row
+    (new_value, timestamp).
+    The provided variable should exist, and the type of new_value
+    must match the type of the Variable.
+    """
+    pass
