@@ -21,7 +21,7 @@ Files for setting up a SQLite database, storing and retrieving information.
 import os
 import sqlite3
 import time
-from typing import Any, Optional, Tuple
+from typing import Any, Iterable, Optional, Tuple
 import pandas as pd
 
 import robots_everywhere.settings as settings
@@ -77,7 +77,7 @@ class DatabaseWriter:
         self.__conn = connect_to_db(db_file)
 
     @property
-    def variables(self) -> Tuple(Variable):
+    def variables(self) -> Tuple[Variable]:
         """
         Get all Variables registered in the loaded database.
         """
