@@ -138,6 +138,23 @@ class AddVarsTestCase(unittest.TestCase):
         df = get_all_rows_variables(self.conn)
         self.assertEqual(df.loc[0, "var_type"], settings.TYPE_TO_STR[int])
 
+    def test_empty_table_for_var(self):
+        """
+        A new, empty, table should be created, with the name of the variable.
+        The columns should be 'value' and 'timestamp'.
+        """        
+        var = Variable(int, "some_var")
+        add_var(self.conn, var)
+        expected_cols = ("value", "timestamp")
+
+        query = """
+        SELECT *
+        FROM some_var;
+        """
+        df = pd.read_sql(query, self.conn)
+
+        self.assertTupleEqual(tuple(df.columns), expected_cols)
+        self.assertEqual(len(df), 0, "Table should be empty")
 
 def remove_database(db_file: str = TEST_DB_NAME):
     """

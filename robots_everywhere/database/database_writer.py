@@ -78,7 +78,14 @@ def setup_vars_table(conn: sqlite3.Connection):
     conn.commit()
 
 def add_var(conn: sqlite3.Connection, var: Variable):
+    __add_to_variables_table(conn, var)
+    __create_table_for_var(conn, var)
+    
 
+def __add_to_variables_table(conn: sqlite3.Connection, var: Variable):
+    """
+    Add a new Variable entry (as a row) to the 'variables' table.
+    """
     if var.name in map(lambda x: x.name, get_all_vars(conn)):
         raise RuntimeError("Variable name already in database")
 
@@ -91,6 +98,44 @@ def add_var(conn: sqlite3.Connection, var: Variable):
     params = (var.name, TYPE_TO_STR[var.var_type], timestamp)
     conn.execute(query, params)
     conn.commit()
+
+
+def __create_table_for_var(conn: sqlite3.Connection, var: Variable):
+    """
+    Create a new table for the given Variable.
+    The title of the table will equal the name of the Variable.
+    It has two columns: 
+        * a 'value' column (whose entries should be of type [var.var_type])
+        * a 'timestamp' column (whose entries are int seconds since the epoch)
+    """
+    value_storage_class = __get_var_storage_class(var)
+    query = f"""
+    CREATE TABLE {var.name} (
+        value {value_storage_class} NOT NULL,
+        timestamp INT PRIMARY KEY
+    );
+    """
+    conn.execute(query)
+    conn.commit()
+
+    
+
+def __get_var_storage_class(var: Variable) -> str:
+    """
+    Get the best matching storage class available in SQLite for 
+    the var_type of the given variable.
+    """
+
+    if var.var_type == int:
+        return "INT"
+    elif var.var_type == float:
+        return "REAL"
+    elif var.var_type == str:
+        return "TEXT"
+    else:
+        return "BLOB"
+
+
 
 def get_all_vars(conn: sqlite3.Connection) -> Tuple[Variable]:
     df = pd.read_sql(settings.GET_ALL_VARS_QUERY, conn)
