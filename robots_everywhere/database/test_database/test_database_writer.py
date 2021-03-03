@@ -69,6 +69,7 @@ class ConnectToDBTestCase(unittest.TestCase):
         df = pd.read_sql(query, self.conn)
         self.assertEqual(len(df), 0)
 
+
 class GetAllVarsTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -78,7 +79,7 @@ class GetAllVarsTestCase(unittest.TestCase):
     def test_no_vars_present(self):
         result = get_all_vars(self.conn)
         self.assertEqual(len(result), 0)
-    
+
     def test_two_vars_present(self):
         var_1 = Variable(int, "some_int")
         var_2 = Variable(str, "some_str")
@@ -147,7 +148,7 @@ class AddVarsTestCase(unittest.TestCase):
         """
         A new, empty, table should be created, with the name of the variable.
         The columns should be 'value' and 'timestamp'.
-        """        
+        """
         var = Variable(int, "some_var")
         add_var(self.conn, var)
         expected_cols = ("value", "timestamp")
@@ -160,6 +161,7 @@ class AddVarsTestCase(unittest.TestCase):
 
         self.assertTupleEqual(tuple(df.columns), expected_cols)
         self.assertEqual(len(df), 0, "Table should be empty")
+
 
 def remove_database(db_file: str = TEST_DB_NAME):
     """
@@ -179,6 +181,7 @@ def get_all_rows_variables(conn: sqlite3.Connection) -> pd.DataFrame:
     FROM variables;
     """
     return pd.read_sql(query, conn)
+
 
 class InsertVariableValueTestCase(unittest.TestCase):
 
@@ -203,13 +206,12 @@ class InsertVariableValueTestCase(unittest.TestCase):
         self.assertEqual(df.loc[0, "value"], new_value)
         self.assertEqual(df.loc[0, "timestamp"], timestamp)
 
-
     def test_insert_invalid_value(self):
         """
         Inserting a float as a value in a table of an int Variable
         should raise an error. A ValueError.
         """
-        invalid_value = 13.5 
+        invalid_value = 13.5
         with self.assertRaises(ValueError):
             insert_new_var_value(self.conn, self.var, invalid_value)
 
@@ -256,6 +258,7 @@ class InsertVariableValueTestCase(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             insert_new_var_value(self.conn, another_var, new_value)
 
+
 class DatabaseWriterTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -301,7 +304,24 @@ class DatabaseWriterTestCase(unittest.TestCase):
         self.assertLess(timestamp - df.loc[1, "timestamp"], 2)
         self.assertEqual(len(df), 2)
 
-    
-    
+    def test_insert_valid_with_timestamp(self):
+        var = Variable(int, "test_var")
+        self.db.create_new_var(var)
+
+        new_value = 13
+        timestamp = 12345
+        self.db.insert_new_value_of_var(var, new_value, timestamp)
+
+        test_query = """
+        SELECT value, timestamp
+        FROM test_var;
+        """
+
+        df = self.db.get_rows_of_var(var)
+
+        self.assertEqual(df.loc[0, "value"], new_value)
+        self.assertEqual(df.loc[0, "timestamp"], timestamp)
+
+
 if __name__ == "__main__":
     unittest.main()

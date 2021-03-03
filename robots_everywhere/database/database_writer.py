@@ -103,13 +103,16 @@ class DatabaseWriter:
         """
         return pd.read_sql(query, self.__conn)
 
-    def insert_new_value_of_var(self, var: Variable, new_value: Any):
+    def insert_new_value_of_var(self, var: Variable, new_value: Any, timestamp: Optional[int] = None):
         """
         Insert a new row in the table associated with [var].
         The type of new_value should match [var.var_type].
-        The time of entry is also recorded.
+        The time of entry is also recorded, and can optionally be overridden.
         """
-        insert_new_var_value(self.__conn, var, new_value)
+        if timestamp is not None:
+            insert_new_var_value(self.__conn, var, new_value, timestamp)
+        else:
+            insert_new_var_value(self.__conn, var, new_value)
 
     def execute_sql_query(self,
                           query: str,
