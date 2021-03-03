@@ -31,7 +31,7 @@ class MockDatabaseWriter(DatabaseWriter):
 
     def insert_new_value_of_var(self, var: Variable, new_value: Any,
                                 timestamp: int = None):
-        pass
+        self.input = (var, new_value, timestamp)
 
     def create_new_var(self, var):
         raise RuntimeError("Should not be called in the tests.")
@@ -42,13 +42,27 @@ class MockDatabaseWriter(DatabaseWriter):
 class InsertCommandTestCase(unittest.TestCase):
 
     def test_execute(self):
-        pass
+        var = Variable(int, "meh")
+        timestamp = 123
+        new_value = 321
+        id = 999
+
+        db_writer = MockDatabaseWriter()
+        command = InsertCommand(db_writer, id, var, new_value, timestamp)
+        command.execute()
+        
+        observation = db_writer.input
+        self.assertEqual(observation[0], var)
+        self.assertEqual(observation[1], new_value)
+        self.assertEqual(observation[2], timestamp)
+
 
     def test_undo(self):
         pass
 
     def test_get_id(self):
-        pass
+        command = InsertCommand(None, 0, None, None)
+        self.assertEqual(command.id, 0)
 
     def test_get_is_executed_1(self):
         """
