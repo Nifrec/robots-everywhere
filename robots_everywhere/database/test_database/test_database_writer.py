@@ -294,14 +294,15 @@ class DatabaseWriterTestCase(unittest.TestCase):
         some_var = Variable(int, "some_var")
         self.db.create_new_var(some_var)
         self.db.insert_new_value_of_var(some_var, 10)
-        self.db.insert_new_value_of_var(some_var, 12)
-        df = self.db.get_rows_of_var()
+        # Pretend this happens a second later!
+        self.db.insert_new_value_of_var(some_var, 12, int(time.time()) + 1)
+        df = self.db.get_rows_of_var(some_var)
         timestamp = time.time()
 
         self.assertEqual(df.loc[0, "value"], 10)
         self.assertEqual(df.loc[1, "value"], 12)
         self.assertLess(timestamp - df.loc[0, "timestamp"], 2)
-        self.assertLess(timestamp - df.loc[1, "timestamp"], 2)
+        self.assertLess(timestamp + 1 - df.loc[1, "timestamp"], 2)
         self.assertEqual(len(df), 2)
 
     def test_insert_valid_with_timestamp(self):
