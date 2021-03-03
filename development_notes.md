@@ -11,4 +11,16 @@ we do not need to distinquish between database editing and query commands.
 
 ----
 
-The `InsertCommand` may seem overkill. It is possible to add a `Answer.store_in_db(db_writer: DatabaseWriter)` method and be done with it. However, the indirection of adding an `InsertCommand` inbetween the `Answer` and the `DatabaseWriter` greatly increases exendability, e.g. by adding an undo functionality.
+The `InsertCommand` may seem overkill. 
+It is possible to add a `Answer.store_in_db(db_writer: DatabaseWriter)` 
+method and be done with it. 
+However, the indirection of adding an `InsertCommand` 
+inbetween the `Answer` and the `DatabaseWriter` greatly increases extendability,
+e.g. by allowing an undo functionality.
+
+----
+
+It is currently not possible to insert multiple values for the same `Variable`
+in the same second. 
+Given the usecase this does not seem probematic? 
+It would be easy to change.
