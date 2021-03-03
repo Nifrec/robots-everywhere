@@ -140,3 +140,4 @@ cython_debug/
 # SQL Database files
 *.db
 .fuse_hidden0000031600000001
+test_db.db-journal
