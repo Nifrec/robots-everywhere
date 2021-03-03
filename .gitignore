@@ -141,3 +141,6 @@ cython_debug/
 *.db
 .fuse_hidden0000031600000001
 test_db.db-journal
+.fuse_hidden0000041900000001
+.gitignore
+.fuse_hidden000004a000000002
