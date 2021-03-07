@@ -19,7 +19,55 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Testcases for the source file rules.py.
 """
 import unittest
-from robots_everywhere.output.rules import parse_expression, cut_rule_expression
+from robots_everywhere.output.rules import parse_expression, \
+    cut_rule_expression, extract_vars
+
+class ExtractVarsTestCase(unittest.TestCase):
+
+    def test_extract_vars(self):
+        expression = "my_var, my_other_var, (some_var)"
+        expected = {"my_var", "my_other_var", "some_var"}
+        self.assertSetEqual(extract_vars(expression), expected)
+
+    def test_ignore_mean(self):
+        """
+        The substring "mean" should always be ignored.
+        """
+        expression = "my_varmean(my_other_var)some_varmeana)"
+        expected = {"my_var", "my_other_var", "some_var", "a"}
+        self.assertSetEqual(extract_vars(expression), expected)
+
+    def test_ignore_first(self):
+        """
+        The substring "first" should always be ignored.
+        """
+        expression = "my_varfirst(my_other_var)some_varfirsta)"
+        expected = {"my_var", "my_other_var", "some_var", "a"}
+        self.assertSetEqual(extract_vars(expression), expected)
+
+    def test_ignore_last(self):
+        """
+        The substring "last" should always be ignored.
+        """
+        expression = "my_varlast(my_other_var)some_varlasta)"
+        expected = {"my_var", "my_other_var", "some_var", "a"}
+        self.assertSetEqual(extract_vars(expression), expected)
+
+    def test_ignore_allbut(self):
+        """
+        The substring "allbut" should always be ignored.
+        """
+        expression = "my_varallbut(my_other_var)some_varallbuta)"
+        expected = {"my_var", "my_other_var", "some_var", "a"}
+        self.assertSetEqual(extract_vars(expression), expected)
+
+    def test_ignore_combo(self):
+        """
+        Any concatenation of the ignored substrings should also be ignored.
+        """
+        expression = "helloallbutfirstworld)"
+        expected = {"hello", "world"}
+        self.assertSetEqual(extract_vars(expression), expected)
 
 class CutRuleExpressionTestCase(unittest.TestCase):
     

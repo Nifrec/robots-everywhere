@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Rules for when and which output should be displayed to the user.
 """
 import re
-from typing import Tuple
+from typing import Set, Tuple
 
 class RuleExpression:
     """
@@ -65,6 +65,16 @@ def parse_expression(expression: str) -> str:
     it will be substituted by "vars['my_var']".
     """
     pass
+
+def extract_vars(expression: str) -> Set[str]:
+    """
+    Extract variable names from an expression.
+    Variable names should be [a-z_]*
+    """
+    expression = re.sub(r'mean|first|allbut|last', " ", expression)
+    results = set(re.findall(r'[a-z_]*', expression)).difference(("",))
+    return results
+
 
 def cut_rule_expression(expression: str) -> Tuple[str, str]:
     """
