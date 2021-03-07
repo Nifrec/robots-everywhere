@@ -20,7 +20,16 @@ Testcases for the source file rules.py.
 """
 import unittest
 from robots_everywhere.output.rules import parse_expression, \
-    cut_rule_expression, extract_vars
+    cut_rule_expression, extract_vars, substitute_vars
+
+class SubstituteVarsTestCase(unittest.TestCase):
+
+    def test_substitute_1(self):
+        vars = {"hello", "world"}
+        expression = "oh hello dear world!"
+        expected = "oh vars['hello'] dear vars['world']!"
+        result = substitute_vars(expression, vars)
+        self.assertEqual(result, expected)
 
 class ExtractVarsTestCase(unittest.TestCase):
 

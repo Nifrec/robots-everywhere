@@ -66,6 +66,15 @@ def parse_expression(expression: str) -> str:
     """
     pass
 
+def substitute_vars(expression: str, vars: Set[str]):
+    """
+    Surround each occurence of each element "x" in [vars]
+    in [expression] as "vars['x']"
+    """
+    for var in vars:
+        expression = re.sub(var, f"vars['{var}']", expression)
+    return expression
+
 def extract_vars(expression: str) -> Set[str]:
     """
     Extract variable names from an expression.
