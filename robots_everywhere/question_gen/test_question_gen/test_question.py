@@ -30,8 +30,8 @@ class QuestionTestCase(unittest.TestCase):
         Base case: str-typed Question
         """
 
-        question = Question("TestQuestion",Variable(str, "TestVar"),0)
-        expected = "Question('TestQuestion',Variable(str,'TestVar'),0)"
+        question = Question("TestQuestion",Variable(str, "TestVar"))
+        expected = "Question('TestQuestion',Variable(str,'TestVar'))"
         result = repr(question)
         self.assertEqual(result, expected)
 
@@ -40,8 +40,8 @@ class QuestionTestCase(unittest.TestCase):
         Base-case: str-typed Question
         """
 
-        question = Question("TestQuestion1",Variable(str, "TestVar1"),0)
-        expected = "Question(0,Variable(str,'TestVar1')):TestQuestion1"
+        question = Question("TestQuestion1",Variable(str, "TestVar1"))
+        expected = "Question(Variable(str,'TestVar1')):TestQuestion1"
         result = str(question)
         self.assertEqual(result, expected)
 
@@ -49,33 +49,27 @@ class QuestionTestCase(unittest.TestCase):
         """
         Both inputs should be equal.
         """
-        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"),0)
-        que_2 = Question("TestQuestion1",Variable(str, "TestVar1"),0)
+        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"))
+        que_2 = Question("TestQuestion1",Variable(str, "TestVar1"))
         self.assertEqual(que_1, que_2)
 
     def test__eq__2(self):
         """
         Content different.
         """
-        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"),0)
-        que_2 = Question("TestQuestion2",Variable(str, "TestVar1"),0)
+        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"))
+        que_2 = Question("TestQuestion2",Variable(str, "TestVar1"))
         self.assertNotEqual(que_1, que_2)
 
     def test__eq__3(self):
         """
         Variable different.
         """
-        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"),0)
-        que_2 = Question("TestQuestion1",Variable(str, "TestVar2"),0)
+        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"))
+        que_2 = Question("TestQuestion1",Variable(str, "TestVar2"))
         self.assertNotEqual(que_1, que_2)
 
-    def test__eq__4(self):
-        """
-        Id different.
-        """
-        que_1 = Question("TestQuestion1",Variable(str, "TestVar1"),0)
-        que_2 = Question("TestQuestion1",Variable(str, "TestVar1"),1)
-        self.assertNotEqual(que_1, que_2)
+    
 
 
 

@@ -22,10 +22,9 @@ from robots_everywhere.database.database_writer import Variable
 
 class Question:
 
-    def __init__(self, content: str, variable: Variable, id: int):
+    def __init__(self, content: str, variable: Variable):
         self.__content = content
         self.__variable = variable
-        self.__id = id
 
     @property
     def content(self) -> str:
@@ -35,18 +34,15 @@ class Question:
     def variable(self) -> Variable:
         return self.__variable
 
-    @property
-    def id(self) -> int:
-        return self.__id
 
     def __repr__(self) -> str:
-        return f"Question({repr(self.content)},{repr(self.variable)},{repr(self.id)})"
+        return f"Question({repr(self.content)},{repr(self.variable)})"
 
     def __str__(self) -> str:
-        return f"Question({self.id},{repr(self.variable)}):{self.content}"
+        return f"Question({repr(self.variable)}):{self.content}"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Question):
             return False
         else:
-            return other.content == self.content and other.variable == self.variable and other.id == self.id
+            return other.content == self.content and other.variable == self.variable
