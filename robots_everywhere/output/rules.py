@@ -26,7 +26,12 @@ from collections import namedtuple
 
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "vars"])
-
+REGEX_TO_REPLACEMENT = {
+        r'\(\s*allbutfirst.*\)' : "[IDX:]",
+        r'\(\s*first.*\)' : "[:IDX]",
+        r'\(\s*last.*\)' : "[-IDX:]",
+        r'\(\s*allbutlast.*\)' : "[:-IDX]"
+    }
 
 class RuleExpression(abc.ABC):
     """
@@ -134,23 +139,24 @@ def substitute_quantifiers(expression: str):
         (first x) -> [:x]
         (allbutfirst x) -> [x:]
     """
-    regex_to_replacement = {
-        r'\(\s*allbutfirst.*\)' : "[IDX:]",
-        r'\(\s*first.*\)' : "[:IDX]",
-        r'\(\s*last.*\)' : "[-IDX:]",
-        r'\(\s*allbutlast.*\)' : "[:-IDX]"
-    }
-
-    for regex in regex_to_replacement.keys():
-        for match in re.findall(regex, expression):
-            index = re.sub(regex[:-4], '', match)
-            index = re.sub(regex[-2:], '', index)
-            index = eval(index)
-            if not isinstance(index, int):
-                raise ValueError(f"Int index required, got invalid type: {index}")
-            replacement = re.sub("IDX", str(index), regex_to_replacement[regex])
-            expression = re.sub(regex, replacement, expression, count=1)
+    for regex in REGEX_TO_REPLACEMENT.keys():
+        expression = __replace_single_quentifier_type(expression, regex)
     return expression
+
+def __replace_single_quentifier_type(expression: str, regex: str) -> str:
+    for match in re.findall(regex, expression):
+        replacement = __create_replacement_for_quantifier_match(match, regex)
+        expression = re.sub(regex, replacement, expression, count=1)
+    return expression
+
+def __create_replacement_for_quantifier_match(match: str, regex: str) -> str:
+    index = re.sub(regex[:-4], '', match)
+    index = re.sub(regex[-2:], '', index)
+    index = eval(index)
+    if not isinstance(index, int):
+        raise ValueError(f"Int index required, got invalid type: {index}")
+    replacement = re.sub("IDX", str(index), REGEX_TO_REPLACEMENT[regex])
+    return replacement
 
 def substitute_vars(expression: str, vars: Set[str]):
     """
