@@ -144,9 +144,11 @@ def substitute_quantifiers(expression: str):
     return expression
 
 def __replace_single_quentifier_type(expression: str, regex: str) -> str:
-    for match in re.findall(regex, expression):
-        replacement = __create_replacement_for_quantifier_match(match, regex)
-        expression = re.sub(regex, replacement, expression, count=1)
+    for match in re.finditer(regex, expression):
+        replacement = __create_replacement_for_quantifier_match(
+            match.group(0), regex)
+        start, end = match.span(0)
+        expression = expression[:start] + replacement + expression[end:]
     return expression
 
 def __create_replacement_for_quantifier_match(match: str, regex: str) -> str:
