@@ -20,7 +20,116 @@ Testcases for the source file rules.py.
 """
 import unittest
 from robots_everywhere.output.rules import parse_expression, \
-    cut_rule_expression, extract_vars, substitute_vars
+    cut_rule_expression, extract_vars, substitute_vars, ParseResults, \
+        substitute_quantifiers
+
+class ParseExpressionTestCase(unittest.TestCase):
+
+    def check_parse(self, expression: str, expected: ParseResults):
+        result = parse_expression(expression)
+
+        self.assertEqual(expected.trigger_expr, result.trigger_expr)
+        self.assertEqual(expected.message_expr, result.message_expr)
+        self.assertSetEqual(expected.vars, result.vars)
+    
+    def test_parse_1(self):
+        expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
+        expected_message = "vars['work'][0]"
+        expected_vars = {"sleep", "work"}
+        expected = ParseResults(expected_trigger, expected_message, expected_vars)
+        self.check_parse(expression, expected)
+        
+
+    def test_parse_2(self):
+        expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
+        expected_message = "vars['work'][0]"
+        expected_vars = {"sleep", "work"}
+        result = parse_expression(expression)
+
+        self.assertEqual(expected_trigger, result.trigger_expr)
+        self.assertEqual(expected_message, result.message_expr)
+        self.assertSetEqual(expected_vars, result.vars)
+
+class SubstituteQuantifiersTestCase(unittest.TestCase):
+    def test_substitute_allbutlast(self):
+        expression = "hello world how(allbutlast 3) oh?"
+        expected = "hello world how[:-3] oh?"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_substitute_allbutfirst(self):
+        expression = "sleep(allbutfirst 3)- 10"
+        expected = "sleep[3:]- 10"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_substitute_first(self):
+        expression = "sleep(first 3)- 10"
+        expected = "sleep[:3]- 10"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_substitute_without_space(self):
+        """
+        A whitespace between the quentifier keyword and the index
+        is not enforced.
+        """
+        expression = "sleep(first3)- 10"
+        expected = "sleep[:3]- 10"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_preserve_mean(self):
+        """
+        The 'mean' keyword also uses brackets. 
+        They must be retained!
+        """
+        expression = "mean(somthing(allbutfirst2))"
+        expected = "mean(something[2:])"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_substitute_last(self):
+        expression = "sleep(last 3) -~- 10 :)"
+        expected = "sleep[3:] -~- 10 :)"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
+    def test_error_if_float(self):
+        """
+        Floating point indices are sementically undefined 
+        and are hence not allowed.
+        """
+        expression = "my_var(last 3.5)"
+        with self.assertRaises(ValueError):
+            substitute_quantifiers(expression)
+
+    def test_error_if_missing_index(self):
+        """
+        The end/starting index may not be missing.
+        Also not in the case of 'first' or 'last'.
+        """
+        expression = "my_var(last)"
+        with self.assertRaises(ValueError):
+            substitute_quantifiers(expression)
+
+    def test_error_if_index_is_str(self):
+        """
+        Indices must be int.
+        """
+        expression = "my_var(last ten)"
+        with self.assertRaises(ValueError):
+            substitute_quantifiers(expression)
+
+    def test_error_if_unrecognized_range_keyword(self):
+        """
+        The keyword must be 'first', 'allbutfirst', 'allbutlast' or 'last'.
+        """
+        expression = "my_var(some 3)"
+        with self.assertRaises(ValueError):
+            substitute_quantifiers(expression)
 
 class SubstituteVarsTestCase(unittest.TestCase):
 
