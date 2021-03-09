@@ -140,10 +140,10 @@ def substitute_quantifiers(expression: str):
         (allbutfirst x) -> [x:]
     """
     for regex in REGEX_TO_REPLACEMENT.keys():
-        expression = __replace_single_quentifier_type(expression, regex)
+        expression = __replace_single_quantifier_type(expression, regex)
     return expression
 
-def __replace_single_quentifier_type(expression: str, regex: str) -> str:
+def __replace_single_quantifier_type(expression: str, regex: str) -> str:
     for match in re.finditer(regex, expression):
         replacement = __create_replacement_for_quantifier_match(
             match.group(0), regex)
