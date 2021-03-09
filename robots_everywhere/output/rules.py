@@ -18,10 +18,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Rules for when and which output should be displayed to the user.
 """
+import abc
 import re
-from typing import Set, Tuple
+import numpy as np
+from typing import Iterable, Set, Tuple, Any, Dict, Sized
+from collections import namedtuple
 
-class RuleExpression:
+ParseResults = namedtuple("ParseResults",
+                          ["trigger_expr", "message_expr", "vars"])
+
+
+class RuleExpression(abc.ABC):
     """
     Class for encapsulating an rule expression, according to rules below,
     and pretending it is a normal function:
@@ -49,11 +56,61 @@ class RuleExpression:
     The unary operation mean(x(...)) is also supported, 
     with returns the sample mean of a subsequence x(...). 
     """
-    def __init__(self, expression: str):
+
+    def __init__(self, expression: str, variables: Set[str]):
+        self.__expression = expression
+        self.__variables = variables
+
+    @property
+    def variables(self) -> Set[str]:
+        return self.__variables.copy()
+
+    def __call__(self, variables_values: Dict[str, np.ndarray]):
+        vars = variables_values
+        mean = np.mean
+        output = eval(self.__expression, locals=(vars, mean))
+        if not self._hook_check_output_value(output):
+            raise RuntimeError(
+                "Evaluating rule-expression gave unexpected result")
+        return output
+
+    @abc.abstractmethod
+    def _hook_check_output_value(self, output: Any) -> bool:
+        """
+        Method for subclasses to implement:
+        return whether the output of __call__ would be
+        of desired type.
+        """
         pass
 
 
-def parse_expression(expression: str) -> str:
+class TriggerExpression(RuleExpression):
+    """
+    Expression that should always evaluate to bools:
+    it checks if a rule should be triggered.
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        return isinstance(output, bool)
+
+
+class MessageExpression(RuleExpression):
+    """
+    Expression that should evaluate to any message.
+    Any value except nothing is allowed.
+    Here nothing is a length 0 sequence or None.
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        if output is None:
+            return False
+        elif issubclass(output, Sized) and len(output) == 0:
+            return False
+        else:
+            return True
+
+
+def parse_expression(expression: str) -> ParseResults:
     """
     Map a raw rule-expression to Python code,
     where each variable is replaced by a dictionary entry.
@@ -64,7 +121,36 @@ def parse_expression(expression: str) -> str:
     For example, if some variable "my_var" occurs in the expression,
     it will be substituted by "vars['my_var']".
     """
-    pass
+    vars = extract_vars(expression)
+    expression = substitute_vars(expression, vars)
+    trigger_expr, message_expr = cut_rule_expression(expression)
+    return ParseResults(trigger_expr, message_expr, vars)
+
+def substitute_quantifiers(expression: str):
+    """
+    Replaces:
+        (allbutlast x) -> [:-x]
+        (last x) -> [-x:]
+        (first x) -> [:x]
+        (allbutfirst x) -> [x:]
+    """
+    regex_to_replacement = {
+        r'\(\s*allbutfirst.*\)' : "[IDX:]",
+        r'\(\s*first.*\)' : "[:IDX]",
+        r'\(\s*last.*\)' : "[-IDX:]",
+        r'\(\s*allbutlast.*\)' : "[:-IDX]"
+    }
+
+    for regex in regex_to_replacement.keys():
+        for match in re.findall(regex, expression):
+            index = re.sub(regex[:-4], '', match)
+            index = re.sub(regex[-2:], '', index)
+            index = eval(index)
+            if not isinstance(index, int):
+                raise ValueError(f"Int index required, got invalid type: {index}")
+            replacement = re.sub("IDX", str(index), regex_to_replacement[regex])
+            expression = re.sub(regex, replacement, expression, count=1)
+    return expression
 
 def substitute_vars(expression: str, vars: Set[str]):
     """
@@ -74,6 +160,7 @@ def substitute_vars(expression: str, vars: Set[str]):
     for var in vars:
         expression = re.sub(var, f"vars['{var}']", expression)
     return expression
+
 
 def extract_vars(expression: str) -> Set[str]:
     """
@@ -96,7 +183,7 @@ def cut_rule_expression(expression: str) -> Tuple[str, str]:
         raise ValueError("Invalid rule: does not contain substring 'rule'")
     if "|" not in expression:
         raise ValueError("Invalid rule: does not contain substring '|'")
-    
+
     expression = expression[4:]
     results = expression.split("|")
     results = tuple(map(lambda x: x.strip(), results))
@@ -105,4 +192,3 @@ def cut_rule_expression(expression: str) -> Tuple[str, str]:
         raise ValueError("Invalid rule")
 
     return results
-

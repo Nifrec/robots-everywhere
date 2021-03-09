@@ -54,7 +54,7 @@ class ParseExpressionTestCase(unittest.TestCase):
         self.assertSetEqual(expected_vars, result.vars)
 
 class SubstituteQuantifiersTestCase(unittest.TestCase):
-    @unittest.skip
+
     def test_substitute_allbutlast(self):
         expression = "hello world how(allbutlast 3) oh?"
         expected = "hello world how[:-3] oh?"
@@ -67,7 +67,6 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-    @unittest.skip
     def test_substitute_first(self):
         expression = "sleep(first 3)- 10"
         expected = "sleep[:3]- 10"
@@ -79,12 +78,11 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         Extra whitespaces within the brackets are allowed
         as long as they leave the keyword intact.
         """
-        expression = "sleep(      first    3   )"
+        expression = "sleep(      allbutfirst    3   )"
         expected = "sleep[3:]"
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-    @unittest.skip
     def test_substitute_without_space(self):
         """
         A whitespace between the quentifier keyword and the index
