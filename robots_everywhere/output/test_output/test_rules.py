@@ -97,6 +97,15 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
+    def test_substitute_multiple(self):
+        """
+        Multiple quantifiers should all be substituted.
+        """
+        expression = "sleep(last 3) + meh(allbutlast2) + fish(last1)"
+        expected = "sleep[-3:] + meh[:-2] + fish[-1:]"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
     def test_error_if_float(self):
         """
         Floating point indices are sementically undefined 
