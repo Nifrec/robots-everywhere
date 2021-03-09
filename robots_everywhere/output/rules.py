@@ -27,11 +27,12 @@ from collections import namedtuple
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "vars"])
 REGEX_TO_REPLACEMENT = {
-        r'\(\s*allbutfirst.*\)' : "[IDX:]",
-        r'\(\s*first.*\)' : "[:IDX]",
-        r'\(\s*last.*\)' : "[-IDX:]",
-        r'\(\s*allbutlast.*\)' : "[:-IDX]"
+        r'\(\s*allbutfirst[\sa-z]*\d*\s*\)' : "[IDX:]",
+        r'\(\s*first[\sa-z]*\d*\s*\)' : "[:IDX]",
+        r'\(\s*last[\sa-z]*\d*\s*\)' : "[-IDX:]",
+        r'\(\s*allbutlast[\sa-z]*\d*\s*\)' : "[:-IDX]"
     }
+QUANTIFIER_KEYWORDS = ("allbutfirst", "first", "last", "allbutlast")
 
 class RuleExpression(abc.ABC):
     """
@@ -131,7 +132,7 @@ def parse_expression(expression: str) -> ParseResults:
     trigger_expr, message_expr = cut_rule_expression(expression)
     return ParseResults(trigger_expr, message_expr, vars)
 
-def substitute_quantifiers(expression: str):
+def substitute_quantifiers(expression: str) -> str:
     """
     Replaces:
         (allbutlast x) -> [:-x]
@@ -139,9 +140,30 @@ def substitute_quantifiers(expression: str):
         (first x) -> [:x]
         (allbutfirst x) -> [x:]
     """
+    __check_for_invalid_quantifiers(expression)
     for regex in REGEX_TO_REPLACEMENT.keys():
         expression = __replace_single_quantifier_type(expression, regex)
     return expression
+
+def __check_for_invalid_quantifiers(expression: str): 
+    """
+    Raise a ValueError if [expression] contains a substring,
+    starting and ending with respectively "(" and ")", not prefixed by "mean",
+    that does not consist of any single one of the quantifier keywords
+    ('first', 'allbutfirst', 'allbutlast' or 'last') followed by a single
+    integer.
+    Whitespaces are ignored as long as they do not break the keyword or
+    the index in multiple separated substrings.
+    """
+    regex = r'(?!mean)\([\s\w\d]*?\)'
+    for match in re.findall(regex, expression):
+        quantifier = match[1:-1] # Remove outer brackets
+        quantifier = re.sub(r'[1-9]*', "", quantifier) # Remove index
+        quantifier = re.sub(r'\s*', "", quantifier) # Remove whitespaces
+        
+        if quantifier not in QUANTIFIER_KEYWORDS:
+            raise ValueError("Invalid quantifier")
+
 
 def __replace_single_quantifier_type(expression: str, regex: str) -> str:
     for match in re.finditer(regex, expression):
@@ -152,11 +174,11 @@ def __replace_single_quantifier_type(expression: str, regex: str) -> str:
     return expression
 
 def __create_replacement_for_quantifier_match(match: str, regex: str) -> str:
-    index = re.sub(regex[:-4], '', match)
+    index = re.sub(regex[:-11], '', match)
     index = re.sub(regex[-2:], '', index)
     index = eval(index)
-    if not isinstance(index, int):
-        raise ValueError(f"Int index required, got invalid type: {index}")
+    # if not isinstance(index, int):
+    #     raise ValueError(f"Int index required, got invalid type: {index}")
     replacement = re.sub("IDX", str(index), REGEX_TO_REPLACEMENT[regex])
     return replacement
 

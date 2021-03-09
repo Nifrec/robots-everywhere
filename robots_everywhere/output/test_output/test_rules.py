@@ -73,6 +73,12 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
+    def test_substitute_last(self):
+        expression = "sleep(last 3) -~- 10 :)"
+        expected = "sleep[-3:] -~- 10 :)"
+        result = substitute_quantifiers(expression)
+        self.assertEqual(expected, result)
+
     def test_substitute_extra_whitespaces(self):
         """
         Extra whitespaces within the brackets are allowed
@@ -93,25 +99,20 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-    @unittest.skip
+
     def test_preserve_mean(self):
         """
         The 'mean' keyword also uses brackets. 
         They must be retained!
         """
-        expression = "mean(somthing(allbutfirst2))"
+        expression = "mean(something(allbutfirst2))"
         expected = "mean(something[2:])"
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-    @unittest.skip
-    def test_substitute_last(self):
-        expression = "sleep(last 3) -~- 10 :)"
-        expected = "sleep[3:] -~- 10 :)"
-        result = substitute_quantifiers(expression)
-        self.assertEqual(expected, result)
+    
 
-    @unittest.skip
+
     def test_substitute_multiple(self):
         """
         Multiple quantifiers should all be substituted.
@@ -121,7 +122,6 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-    @unittest.skip
     def test_error_if_float(self):
         """
         Floating point indices are sementically undefined 
@@ -131,7 +131,6 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             substitute_quantifiers(expression)
 
-    @unittest.skip
     def test_error_if_missing_index(self):
         """
         The end/starting index may not be missing.
@@ -141,7 +140,7 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             substitute_quantifiers(expression)
 
-    @unittest.skip
+
     def test_error_if_index_is_str(self):
         """
         Indices must be int.
@@ -150,7 +149,6 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             substitute_quantifiers(expression)
 
-    @unittest.skip
     def test_error_if_unrecognized_range_keyword(self):
         """
         The keyword must be 'first', 'allbutfirst', 'allbutlast' or 'last'.
