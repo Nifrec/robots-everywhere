@@ -26,13 +26,22 @@ from collections import namedtuple
 
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "vars"])
-REGEX_TO_REPLACEMENT = {
-        r'\(\s*allbutfirst[\sa-z]*\d*\s*\)' : "[IDX:]",
-        r'\(\s*first[\sa-z]*\d*\s*\)' : "[:IDX]",
-        r'\(\s*last[\sa-z]*\d*\s*\)' : "[-IDX:]",
-        r'\(\s*allbutlast[\sa-z]*\d*\s*\)' : "[:-IDX]"
-    }
+# REGEX_TO_REPLACEMENT = {
+#         r'\(\s*allbutfirst[\s_a-z]*\d*\s*\)' : "[IDX:]",
+#         r'\(\s*first[\s_a-z]*\d*\s*\)' : "[:IDX]",
+#         r'\(\s*last[\s_a-z]*\d*\s*\)' : "[-IDX:]",
+#         r'\(\s*allbutlast[\s_a-z]*\d*\s*\)' : "[:-IDX]"
+#     }
+
+QUANTIFIER_TO_REPLACEMENT = {
+    "allbutfirst": "[IDX:]",
+    "first": "[:IDX]",
+    "last": "[-IDX:]",
+    "allbutlast": "[:-IDX]"
+}
+
 QUANTIFIER_KEYWORDS = ("allbutfirst", "first", "last", "allbutlast")
+
 
 class RuleExpression(abc.ABC):
     """
@@ -132,6 +141,7 @@ def parse_expression(expression: str) -> ParseResults:
     trigger_expr, message_expr = cut_rule_expression(expression)
     return ParseResults(trigger_expr, message_expr, vars)
 
+
 def substitute_quantifiers(expression: str) -> str:
     """
     Replaces:
@@ -141,11 +151,13 @@ def substitute_quantifiers(expression: str) -> str:
         (allbutfirst x) -> [x:]
     """
     __check_for_invalid_quantifiers(expression)
-    for regex in REGEX_TO_REPLACEMENT.keys():
-        expression = __replace_single_quantifier_type(expression, regex)
+    __check_for_missing_digit(expression)
+    for quantifier in QUANTIFIER_KEYWORDS:
+        expression = __replace_single_quantifier_type(expression, quantifier)
     return expression
 
-def __check_for_invalid_quantifiers(expression: str): 
+
+def __check_for_invalid_quantifiers(expression: str):
     """
     Raise a ValueError if [expression] contains a substring,
     starting and ending with respectively "(" and ")", not prefixed by "mean",
@@ -155,32 +167,49 @@ def __check_for_invalid_quantifiers(expression: str):
     Whitespaces are ignored as long as they do not break the keyword or
     the index in multiple separated substrings.
     """
-    regex = r'(?!mean)\([\s\w\d]*?\)'
+    regex = r'(?!mean)\([^\)\(]*?\)'
     for match in re.findall(regex, expression):
-        quantifier = match[1:-1] # Remove outer brackets
-        quantifier = re.sub(r'[1-9]*', "", quantifier) # Remove index
-        quantifier = re.sub(r'\s*', "", quantifier) # Remove whitespaces
-        
+        quantifier = match[1:-1]  # Remove outer brackets
+        quantifier = re.sub(r'\d+', "", quantifier, count=1)  # Remove index
+        quantifier = re.sub(r'\s*', "", quantifier)  # Remove whitespaces
+
         if quantifier not in QUANTIFIER_KEYWORDS:
             raise ValueError("Invalid quantifier")
 
+def __check_for_missing_digit(expression: str):
+    """
+    Raise a ValueError if the expression does not contain any digit.
+    """
+    if re.search(r'\d', expression) is None:
+        raise ValueError("Quantifier must contain an index")
 
-def __replace_single_quantifier_type(expression: str, regex: str) -> str:
-    for match in re.finditer(regex, expression):
+def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
+    regex = r'\(\s*' + quantifier + r'[\s_a-z]*\d*\s*\)'
+    
+    match = re.search(regex, expression)
+    while match is not None:
         replacement = __create_replacement_for_quantifier_match(
-            match.group(0), regex)
+            match.group(0), quantifier)
+        # # Need to search for the match again, a previous substitution
+        # # of the same quantifier may have changed the length of expression,
+        # # hence using the indices 
+        # expression = re.sub(match, replacement, expression, count=1)
         start, end = match.span(0)
         expression = expression[:start] + replacement + expression[end:]
+
+        match = re.search(regex, expression)
     return expression
 
-def __create_replacement_for_quantifier_match(match: str, regex: str) -> str:
-    index = re.sub(regex[:-11], '', match)
-    index = re.sub(regex[-2:], '', index)
-    index = eval(index)
-    # if not isinstance(index, int):
-    #     raise ValueError(f"Int index required, got invalid type: {index}")
-    replacement = re.sub("IDX", str(index), REGEX_TO_REPLACEMENT[regex])
+
+def __create_replacement_for_quantifier_match(match: str, quantifier: str) -> str:
+    # index = re.sub(regex[:-11], '', match)
+    # index = re.sub(regex[-2:], '', index)
+    # index = eval(index)
+    index = re.search(r'\d+', match).group(0)
+    replacement = re.sub("IDX", str(index),
+                         QUANTIFIER_TO_REPLACEMENT[quantifier])
     return replacement
+
 
 def substitute_vars(expression: str, vars: Set[str]):
     """
