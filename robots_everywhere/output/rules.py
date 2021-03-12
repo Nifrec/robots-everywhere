@@ -22,10 +22,11 @@ import abc
 import re
 import numpy as np
 from typing import Iterable, Set, Tuple, Any, Dict, Sized
+from numbers import Number
 from collections import namedtuple
 
 ParseResults = namedtuple("ParseResults",
-                          ["trigger_expr", "message_expr", "vars"])
+                          ["trigger_expr", "message_expr", "eval_expr", "vars"])
 
 QUANTIFIER_TO_REPLACEMENT = {
     "allbutfirst": "[IDX:]",
@@ -43,18 +44,18 @@ class RuleExpression(abc.ABC):
     and pretending it is a normal function:
     """
 
-    def __init__(self, expression: str, variables: Set[str]):
+    def __init__(self, expression: str, variable_names: Set[str]):
         self.__expression = expression
-        self.__variables = variables
+        self.__variables = variable_names
 
     @property
-    def variables(self) -> Set[str]:
+    def variable_names(self) -> Set[str]:
         return self.__variables.copy()
 
     def __call__(self, variables_values: Dict[str, np.ndarray]):
         vars = variables_values
         mean = np.mean
-        output = eval(self.__expression, locals=(vars, mean))
+        output = eval(self.__expression) #locals=(vars, mean))
         if not self._hook_check_output_value(output):
             raise RuntimeError(
                 "Evaluating rule-expression gave unexpected result")
@@ -90,11 +91,18 @@ class MessageExpression(RuleExpression):
     def _hook_check_output_value(self, output: Any) -> bool:
         if output is None:
             return False
-        elif issubclass(output, Sized) and len(output) == 0:
+        elif isinstance(output, Sized) and len(output) == 0:
             return False
         else:
             return True
 
+class EvaluationExpression(RuleExpression):
+    """
+    Expression that will return a single numeric value in [-1, 1].
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        return isinstance(output, Number) and (abs(output) <= 1)
 
 def parse_expression(expression: str) -> ParseResults:
     """
