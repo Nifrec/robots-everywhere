@@ -55,7 +55,7 @@ class RuleExpression(abc.ABC):
     def __call__(self, variables_values: Dict[str, np.ndarray]):
         vars = variables_values
         mean = np.mean
-        output = eval(self.__expression) #locals=(vars, mean))
+        output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
                 "Evaluating rule-expression gave unexpected result")
