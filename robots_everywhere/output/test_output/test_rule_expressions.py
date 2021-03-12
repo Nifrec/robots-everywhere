@@ -128,5 +128,27 @@ class RuleExpressionTestCase(unittest.TestCase):
         np.testing.assert_allclose(result, expected)
 
 
+class RuleExpressionSubclassesTestCase(unittest.TestCase):
+    """
+    Test if the hook methods of the subclasses of RuleExpression
+    behave as expected.
+    """
+
+    def test_trigger_expression_hook(self):
+        """
+        The output must be a single Boolean value.
+        """
+        trigger = TriggerExpression("0", set([]))
+        self.assertTrue(trigger._hook_check_output_value(True))
+        self.assertTrue(trigger._hook_check_output_value(False))
+        self.assertTrue(trigger._hook_check_output_value(np.array([True])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([False])))
+        self.assertFalse(trigger._hook_check_output_value(1))
+        self.assertFalse(trigger._hook_check_output_value(1.0))
+        self.assertFalse(trigger._hook_check_output_value(np.array([1.0])))
+        self.assertFalse(trigger._hook_check_output_value(
+            np.array([True, True])))
+
+
 if __name__ == "__main__":
     unittest.main()
