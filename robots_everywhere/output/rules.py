@@ -26,12 +26,6 @@ from collections import namedtuple
 
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "vars"])
-# REGEX_TO_REPLACEMENT = {
-#         r'\(\s*allbutfirst[\s_a-z]*\d*\s*\)' : "[IDX:]",
-#         r'\(\s*first[\s_a-z]*\d*\s*\)' : "[:IDX]",
-#         r'\(\s*last[\s_a-z]*\d*\s*\)' : "[-IDX:]",
-#         r'\(\s*allbutlast[\s_a-z]*\d*\s*\)' : "[:-IDX]"
-#     }
 
 QUANTIFIER_TO_REPLACEMENT = {
     "allbutfirst": "[IDX:]",
@@ -190,10 +184,6 @@ def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
     while match is not None:
         replacement = __create_replacement_for_quantifier_match(
             match.group(0), quantifier)
-        # # Need to search for the match again, a previous substitution
-        # # of the same quantifier may have changed the length of expression,
-        # # hence using the indices 
-        # expression = re.sub(match, replacement, expression, count=1)
         start, end = match.span(0)
         expression = expression[:start] + replacement + expression[end:]
 
@@ -202,9 +192,6 @@ def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
 
 
 def __create_replacement_for_quantifier_match(match: str, quantifier: str) -> str:
-    # index = re.sub(regex[:-11], '', match)
-    # index = re.sub(regex[-2:], '', index)
-    # index = eval(index)
     index = re.search(r'\d+', match).group(0)
     replacement = re.sub("IDX", str(index),
                          QUANTIFIER_TO_REPLACEMENT[quantifier])
