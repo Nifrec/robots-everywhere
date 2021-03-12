@@ -41,29 +41,6 @@ class RuleExpression(abc.ABC):
     """
     Class for encapsulating an rule expression, according to rules below,
     and pretending it is a normal function:
-
-    In general, the rule-defining syntax is:
-
-    rule [expression 1] [comparison] [expression_2] | [expression_3]
-
-    Where:
-
-    (1) [expression 1], [expression 2] and [expression 3] are 
-        any valid expression, described further below.
-    (2) [comparison] is one of ==, >=, <=, > or <, 
-        and indicates whether [expression 1] must be equal, 
-        equal or greater, equal or smaller, greater or smaller 
-        than [expression 2], respectively, for the rule to be satisfied. 
-
-    Expressions contain either Variables, constant numbers or both, and evaluate to a single number. Variables must always be indexed, as they generally speaking have multiple entries. Given a Variable named x, it can be indexed as x([specifier] [num]), where
-
-    [specifier] is one of any, allButLast, last, first, allButFirst
-    [num] is an integer. 
-
-    Supported binary operations are +, -, /, * and % 
-    (which correspond to the usual arithmetic operations, and % to modulus). 
-    The unary operation mean(x(...)) is also supported, 
-    with returns the sample mean of a subsequence x(...). 
     """
 
     def __init__(self, expression: str, variables: Set[str]):
@@ -218,11 +195,16 @@ def extract_vars(expression: str) -> Set[str]:
     return results
 
 
-def cut_rule_expression(expression: str) -> Tuple[str, str]:
+def cut_rule_expression(expression: str) -> Tuple[str, str, str]:
     """
-    Given a string "rule [1...] | [2...]" where [1...] and [2...]
+    Given a string "rule [1...] | [2...] | [3...]" 
+    where [1...], [2...] and [3...]
     are any substrings not containing "rule" or "|",
-    returns [1...] and [2...].
+    with leading and trailing whitespaces removed,
+    returns "[1...]", "[2...]" and "tanh([3...])".
+
+    If the last part, i.e. the substring "| [3...]" is not present,
+    the value "0" will be substituted for "tanh([3...])".
     """
     expression = expression.lower().strip()
     if expression[:4] != "rule":
@@ -234,7 +216,12 @@ def cut_rule_expression(expression: str) -> Tuple[str, str]:
     results = expression.split("|")
     results = tuple(map(lambda x: x.strip(), results))
 
-    if len(results) != 2 or any((len(x) == 0 for x in results)):
+    if len(results) not in (2, 3) or any((len(x) == 0 for x in results)):
         raise ValueError("Invalid rule")
+
+    if len(results) == 2:
+        results = results + ("0",)
+    else:
+        results = results[:2] + (f"tanh({results[2]})",)
 
     return results

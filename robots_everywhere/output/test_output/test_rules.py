@@ -238,7 +238,7 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         and should be case insensitive to "rule".
         """
         input_str = "RULE my_var < mean(some_other_var(first 10)) + 10 | 11 "
-        expected = ("my_var < mean(some_other_var(first 10)) + 10", "11")
+        expected = ("my_var < mean(some_other_var(first 10)) + 10", "11", "0")
         result = cut_rule_expression(input_str)
         self.assertTupleEqual(expected, result)
 
@@ -247,7 +247,7 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         Corner case: no whitespace after "rule". Should not matter.
         """
         input_str = "ruLESS than|this --"
-        expected = ("ss than", "this --")
+        expected = ("ss than", "this --", "0")
         result = cut_rule_expression(input_str)
         self.assertTupleEqual(expected, result)
 
@@ -256,7 +256,7 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         Corner case: a whitespace before "rule". Should not matter.
         """
         input_str = " RuLe than   |this --  "
-        expected = ("than", "this --")
+        expected = ("than", "this --", "0")
         result = cut_rule_expression(input_str)
         self.assertTupleEqual(expected, result)
 
@@ -265,10 +265,28 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         Base case: output is always lower case.
         """
         input_str = "rule HelloWorld   | ."
-        expected = ("helloworld", ".")
+        expected = ("helloworld", ".", "0")
         result = cut_rule_expression(input_str)
         self.assertTupleEqual(expected, result)
 
+    def test_cut_with_third_expression_1(self):
+        """
+        Base case: third expression should be surrounded by "tanh(" and ")".
+        """
+        input_str = "rule 1 | 2 | 3"
+        expected = ("1", "2", "tanh(3)")
+        result = cut_rule_expression(input_str)
+        self.assertTupleEqual(expected, result)
+
+    def test_cut_with_third_expression_1(self):
+        """
+        Base case: third expression should be surrounded by "tanh(" and ")",
+        even if it contains non-trailing & non-leading whitespaces.
+        """
+        input_str = "rule 1 | 2 | mean(2*a + 3) - 4"
+        expected = ("1", "2", "tanh(mean(2*a + 3) - 4)")
+        result = cut_rule_expression(input_str)
+        self.assertTupleEqual(expected, result)
         
     def test_cut_left_empty(self):
         """
@@ -283,6 +301,15 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         Corner case: error needed if right side contains no expression.
         """
         input_str = "rule 1+a  |  "
+        with self.assertRaises(ValueError):
+            cut_rule_expression(input_str)
+
+    def test_cut_right_empty_three_expression(self):
+        """
+        Corner case: error needed if the third column contains no expression,
+        but two "|"s are given.
+        """
+        input_str = "rule 1+a  | 3 | "
         with self.assertRaises(ValueError):
             cut_rule_expression(input_str)
 
