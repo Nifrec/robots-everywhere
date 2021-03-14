@@ -16,50 +16,21 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Class that regulates the occurrence of questions
+Testcases for class QuestionOccurrence in question_occurrence.py
 """
-
+import unittest
 from robots_everywhere.question_gen.question import Question
-#import enum
+from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
+from robots_everywhere.database.database_writer import Variable
 
 
-#class QuestionStatus(enum.Enum):
-#    unanswered = 0
-#    answered = 1
-#    snoozed = 2
-#    cancelled = 3
+class MyTestCase(unittest.TestCase):
+    def test_repr(self):
+        occurrence = QuestionOccurrence(Question("TestQuestion",Variable(str, "TestVar")), 0)
+        expected = "0: 'TestQuestion'"
+        result = str(occurrence)
+        self.assertEqual(result, expected)
 
 
-class QuestionOccurrence:
-
-    def __init__(self, questions: Question, id: int):
-        self.__id = id
-        self.__questions = questions
-
-    @property
-    def id(self) -> int:
-        return self.__id
-
-    @property
-    def questions(self) -> Question:
-        return self.__questions
-
-    def __str__(self) -> str:
-        return f"{self.id}: {repr(self.questions.content)}"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    unittest.main()

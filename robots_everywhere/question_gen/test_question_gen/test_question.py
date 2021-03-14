@@ -69,7 +69,7 @@ class QuestionTestCase(unittest.TestCase):
         que_2 = Question("TestQuestion1",Variable(str, "TestVar2"))
         self.assertNotEqual(que_1, que_2)
 
-    
+
 
 
 
