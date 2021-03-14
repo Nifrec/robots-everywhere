@@ -18,42 +18,99 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Rules for when and which output should be displayed to the user.
 """
+import abc
 import re
-from typing import Set, Tuple
+import numpy as np
+from typing import Iterable, Set, Tuple, Any, Dict, Sized
+from numbers import Number
+from collections import namedtuple
 
-class RuleExpression:
+ParseResults = namedtuple("ParseResults",
+                          ["trigger_expr", "message_expr", "eval_expr", "vars"])
+
+QUANTIFIER_TO_REPLACEMENT = {
+    "allbutfirst": "[IDX:]",
+    "first": "[:IDX]",
+    "last": "[-IDX:]",
+    "allbutlast": "[:-IDX]"
+}
+
+QUANTIFIER_KEYWORDS = ("allbutfirst", "first", "last", "allbutlast")
+
+
+class RuleExpression(abc.ABC):
     """
     Class for encapsulating an rule expression, according to rules below,
     and pretending it is a normal function:
-
-    In general, the rule-defining syntax is:
-
-    rule [expression 1] [comparison] [expression_2] | [expression_3]
-
-    Where:
-
-    (1) [expression 1], [expression 2] and [expression 3] are 
-        any valid expression, described further below.
-    (2) [comparison] is one of ==, >=, <=, > or <, 
-        and indicates whether [expression 1] must be equal, 
-        equal or greater, equal or smaller, greater or smaller 
-        than [expression 2], respectively, for the rule to be satisfied. 
-
-    Expressions contain either Variables, constant numbers or both, and evaluate to a single number. Variables must always be indexed, as they generally speaking have multiple entries. Given a Variable named x, it can be indexed as x([specifier] [num]), where
-
-    [specifier] is one of any, allButLast, last, first, allButFirst
-    [num] is an integer. 
-
-    Supported binary operations are +, -, /, * and % 
-    (which correspond to the usual arithmetic operations, and % to modulus). 
-    The unary operation mean(x(...)) is also supported, 
-    with returns the sample mean of a subsequence x(...). 
     """
-    def __init__(self, expression: str):
+
+    def __init__(self, expression: str, variable_names: Set[str]):
+        self.__expression = expression
+        self.__variables = variable_names
+
+    @property
+    def variable_names(self) -> Set[str]:
+        return self.__variables.copy()
+
+    def __call__(self, variables_values: Dict[str, np.ndarray]):
+        vars = variables_values
+        mean = np.mean
+        output = eval(self.__expression)
+        if not self._hook_check_output_value(output):
+            raise RuntimeError(
+                "Evaluating rule-expression gave unexpected result")
+        return output
+
+    @abc.abstractmethod
+    def _hook_check_output_value(self, output: Any) -> bool:
+        """
+        Method for subclasses to implement:
+        return whether the output of __call__ would be
+        of desired type.
+        """
         pass
 
 
-def parse_expression(expression: str) -> str:
+class TriggerExpression(RuleExpression):
+    """
+    Expression that should always evaluate to bools:
+    it checks if a rule should be triggered.
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        if isinstance(output, bool):
+            return True
+        elif isinstance(output, np.ndarray) and (len(output) == 1) \
+            and (output.dtype == np.dtype(bool)):
+            return True
+        else:
+            return False
+
+
+class MessageExpression(RuleExpression):
+    """
+    Expression that should evaluate to any message.
+    Any value except nothing is allowed.
+    Here nothing is a length 0 sequence or None.
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        if output is None:
+            return False
+        elif isinstance(output, Sized) and len(output) == 0:
+            return False
+        else:
+            return True
+
+class EvaluationExpression(RuleExpression):
+    """
+    Expression that will return a single numeric value in [-1, 1].
+    """
+
+    def _hook_check_output_value(self, output: Any) -> bool:
+        return isinstance(output, Number) and (abs(output) <= 1)
+
+def parse_expression(expression: str) -> ParseResults:
     """
     Map a raw rule-expression to Python code,
     where each variable is replaced by a dictionary entry.
@@ -64,7 +121,73 @@ def parse_expression(expression: str) -> str:
     For example, if some variable "my_var" occurs in the expression,
     it will be substituted by "vars['my_var']".
     """
-    pass
+    vars = extract_vars(expression)
+    expression = substitute_vars(expression, vars)
+    trigger_expr, message_expr = cut_rule_expression(expression)
+    return ParseResults(trigger_expr, message_expr, vars)
+
+
+def substitute_quantifiers(expression: str) -> str:
+    """
+    Replaces:
+        (allbutlast x) -> [:-x]
+        (last x) -> [-x:]
+        (first x) -> [:x]
+        (allbutfirst x) -> [x:]
+    """
+    __check_for_invalid_quantifiers(expression)
+    __check_for_missing_digit(expression)
+    for quantifier in QUANTIFIER_KEYWORDS:
+        expression = __replace_single_quantifier_type(expression, quantifier)
+    return expression
+
+
+def __check_for_invalid_quantifiers(expression: str):
+    """
+    Raise a ValueError if [expression] contains a substring,
+    starting and ending with respectively "(" and ")", not prefixed by "mean",
+    that does not consist of any single one of the quantifier keywords
+    ('first', 'allbutfirst', 'allbutlast' or 'last') followed by a single
+    integer.
+    Whitespaces are ignored as long as they do not break the keyword or
+    the index in multiple separated substrings.
+    """
+    regex = r'(?!mean)\([^\)\(]*?\)'
+    for match in re.findall(regex, expression):
+        quantifier = match[1:-1]  # Remove outer brackets
+        quantifier = re.sub(r'\d+', "", quantifier, count=1)  # Remove index
+        quantifier = re.sub(r'\s*', "", quantifier)  # Remove whitespaces
+
+        if quantifier not in QUANTIFIER_KEYWORDS:
+            raise ValueError("Invalid quantifier")
+
+def __check_for_missing_digit(expression: str):
+    """
+    Raise a ValueError if the expression does not contain any digit.
+    """
+    if re.search(r'\d', expression) is None:
+        raise ValueError("Quantifier must contain an index")
+
+def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
+    regex = r'\(\s*' + quantifier + r'[\s_a-z]*\d*\s*\)'
+    
+    match = re.search(regex, expression)
+    while match is not None:
+        replacement = __create_replacement_for_quantifier_match(
+            match.group(0), quantifier)
+        start, end = match.span(0)
+        expression = expression[:start] + replacement + expression[end:]
+
+        match = re.search(regex, expression)
+    return expression
+
+
+def __create_replacement_for_quantifier_match(match: str, quantifier: str) -> str:
+    index = re.search(r'\d+', match).group(0)
+    replacement = re.sub("IDX", str(index),
+                         QUANTIFIER_TO_REPLACEMENT[quantifier])
+    return replacement
+
 
 def substitute_vars(expression: str, vars: Set[str]):
     """
@@ -74,6 +197,7 @@ def substitute_vars(expression: str, vars: Set[str]):
     for var in vars:
         expression = re.sub(var, f"vars['{var}']", expression)
     return expression
+
 
 def extract_vars(expression: str) -> Set[str]:
     """
@@ -85,24 +209,33 @@ def extract_vars(expression: str) -> Set[str]:
     return results
 
 
-def cut_rule_expression(expression: str) -> Tuple[str, str]:
+def cut_rule_expression(expression: str) -> Tuple[str, str, str]:
     """
-    Given a string "rule [1...] | [2...]" where [1...] and [2...]
+    Given a string "rule [1...] | [2...] | [3...]" 
+    where [1...], [2...] and [3...]
     are any substrings not containing "rule" or "|",
-    returns [1...] and [2...].
+    with leading and trailing whitespaces removed,
+    returns "[1...]", "[2...]" and "tanh([3...])".
+
+    If the last part, i.e. the substring "| [3...]" is not present,
+    the value "0" will be substituted for "tanh([3...])".
     """
     expression = expression.lower().strip()
     if expression[:4] != "rule":
         raise ValueError("Invalid rule: does not contain substring 'rule'")
     if "|" not in expression:
         raise ValueError("Invalid rule: does not contain substring '|'")
-    
+
     expression = expression[4:]
     results = expression.split("|")
     results = tuple(map(lambda x: x.strip(), results))
 
-    if len(results) != 2 or any((len(x) == 0 for x in results)):
+    if len(results) not in (2, 3) or any((len(x) == 0 for x in results)):
         raise ValueError("Invalid rule")
 
-    return results
+    if len(results) == 2:
+        results = results + ("0",)
+    else:
+        results = results[:2] + (f"tanh({results[2]})",)
 
+    return results
