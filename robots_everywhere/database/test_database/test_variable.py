@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Testcases for class Variable in database_writer.py
+Testcases for class Variable in database.py
 """
 import unittest
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 
 
 class VariableTestCase(unittest.TestCase):

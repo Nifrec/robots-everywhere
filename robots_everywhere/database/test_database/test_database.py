@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 Testcases for class DatabaseWriter and its auxiliary methods
-in the file database_writer.py
+in the file database.py
 """
 import time
 import unittest
@@ -26,12 +26,12 @@ import sqlite3
 import pandas as pd
 from robots_everywhere import settings
 
-from robots_everywhere.database.database_writer import Variable
-from robots_everywhere.database.database_writer import connect_to_db
-from robots_everywhere.database.database_writer import add_var
-from robots_everywhere.database.database_writer import get_all_vars
-from robots_everywhere.database.database_writer import insert_new_var_value
-from robots_everywhere.database.database_writer import DatabaseWriter
+from robots_everywhere.database.database import Variable
+from robots_everywhere.database.database import connect_to_db
+from robots_everywhere.database.database import add_var
+from robots_everywhere.database.database import get_all_vars
+from robots_everywhere.database.database import insert_new_var_value
+from robots_everywhere.database.database import DatabaseWriter
 from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")

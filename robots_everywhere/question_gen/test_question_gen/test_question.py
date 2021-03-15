@@ -20,7 +20,7 @@ Testcases for class Question in question.py
 """
 import unittest
 from robots_everywhere.question_gen.question import Question
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 
 
 class QuestionTestCase(unittest.TestCase):

@@ -22,7 +22,7 @@ and EvaluationExpression from the file rules.py.
 import unittest
 import numpy as np
 from typing import Any, Dict
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 from robots_everywhere.output.rules import RuleExpression, \
     TriggerExpression, MessageExpression, EvaluationExpression
 

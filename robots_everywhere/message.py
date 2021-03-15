@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Abstract base class for messages send between processes.
 """
 import abc
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 
 class Message(abc.ABC):
 
