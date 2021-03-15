@@ -149,6 +149,33 @@ class RuleExpressionSubclassesTestCase(unittest.TestCase):
         self.assertFalse(trigger._hook_check_output_value(
             np.array([True, True])))
 
+    def test_eval_expression_hook(self):
+        """
+        Output must be a float in [-1, 1].
+        """
+        trigger = EvaluationExpression("0", set([]))
+        self.assertTrue(trigger._hook_check_output_value(0.5))
+        self.assertTrue(trigger._hook_check_output_value(1))
+        self.assertTrue(trigger._hook_check_output_value(-1))
+        self.assertTrue(trigger._hook_check_output_value(-0.5))
+        self.assertTrue(trigger._hook_check_output_value(1.0))
+        self.assertTrue(trigger._hook_check_output_value(0.0))
+        self.assertTrue(trigger._hook_check_output_value(0))
+        self.assertTrue(trigger._hook_check_output_value(np.array([1.0])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([1])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([0.5])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([0.0])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([-1.0])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([-1])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([-0.5])))
+        self.assertTrue(trigger._hook_check_output_value(np.array([-0.0])))
+
+
+        self.assertFalse(trigger._hook_check_output_value(-1.1))
+        self.assertFalse(trigger._hook_check_output_value(1.1))
+        self.assertFalse(trigger._hook_check_output_value(np.array([1.1])))
+        self.assertFalse(trigger._hook_check_output_value(
+            np.array([0.5, 0.5])))
 
 if __name__ == "__main__":
     unittest.main()

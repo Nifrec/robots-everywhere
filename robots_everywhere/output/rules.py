@@ -21,7 +21,7 @@ Rules for when and which output should be displayed to the user.
 import abc
 import re
 import numpy as np
-from typing import Iterable, Set, Tuple, Any, Dict, Sized
+from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized
 from numbers import Number
 from collections import namedtuple
 
@@ -108,6 +108,11 @@ class EvaluationExpression(RuleExpression):
     """
 
     def _hook_check_output_value(self, output: Any) -> bool:
+        if isinstance(output, np.ndarray) and len(output) == 1:
+            output = output[0]
+        elif not isinstance(output, Number)    :
+            return False
+            
         return isinstance(output, Number) and (abs(output) <= 1)
 
 def parse_expression(expression: str) -> ParseResults:
