@@ -35,8 +35,8 @@ class ParseExpressionTestCase(unittest.TestCase):
 
     def test_parse_1(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
-        expected_message = "vars['work'][0]"
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
+        expected_message = "vars['work'][:1]"
         expected_vars = {"sleep", "work"}
         expected = ParseResults(expected_trigger, expected_message,
                                 "0", expected_vars)
@@ -44,8 +44,8 @@ class ParseExpressionTestCase(unittest.TestCase):
 
     def test_parse_2(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
-        expected_message = "vars['work'][0]"
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
+        expected_message = "vars['work'][:1]"
         expected_vars = {"sleep", "work"}
         result = parse_expression(expression)
 
@@ -56,8 +56,8 @@ class ParseExpressionTestCase(unittest.TestCase):
     def test_parse_with_eval(self):
         expression = ("RULE mean(sleep(last 3)) <= work(first 1) "
                       "| work(first 1) | sleep(last 1)")
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
-        expected_message = "vars['work'][0]"
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
+        expected_message = "vars['work'][:1]"
         expected_eval = "vars['work'][-1]"
         expected_vars = {"sleep", "work"}
         expected = ParseResults(expected_trigger, expected_message,
