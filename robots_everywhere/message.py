@@ -66,3 +66,17 @@ class QuestionMessage(VariableMessage):
 class AnswerMessage(VariableMessage):
     pass
 
+class OutputMessage(TextMessage):
+    """
+    Message carrying a text (a string) 
+    and an evaluation (a float in [-1, 1]).
+    """
+
+    def __init__(self, id: int, text: str, evaluation: float):
+        super().__init__(id, text)
+        assert isinstance(evaluation, float) and abs(evaluation) <= 1
+        self.__eval = evaluation
+
+    @property
+    def evaluation(self) -> float:
+        return self.__eval
