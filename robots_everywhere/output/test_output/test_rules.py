@@ -23,7 +23,6 @@ from robots_everywhere.output.rules import parse_expression, \
     cut_rule_expression, extract_vars, substitute_vars, ParseResults, \
         substitute_quantifiers
 
-@unittest.skip
 class ParseExpressionTestCase(unittest.TestCase):
 
     def check_parse(self, expression: str, expected: ParseResults):
