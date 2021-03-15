@@ -20,11 +20,14 @@ Rules for when and which output should be displayed to the user.
 """
 import abc
 import re
+
 import numpy as np
 from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized
 from numbers import Number
 from collections import namedtuple
 
+from robots_everywhere.message import OutputMessage
+from robots_everywhere.database.database import DatabaseReader
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "eval_expr", "vars"])
 
@@ -53,8 +56,10 @@ class RuleExpression(abc.ABC):
         return self.__variables.copy()
 
     def __call__(self, variables_values: Dict[str, np.ndarray]):
+        # These two are used as context by self.__expression under this name!
         vars = variables_values
         mean = np.mean
+        
         output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
@@ -81,7 +86,7 @@ class TriggerExpression(RuleExpression):
         if isinstance(output, bool):
             return True
         elif isinstance(output, np.ndarray) and (len(output) == 1) \
-            and (output.dtype == np.dtype(bool)):
+                and (output.dtype == np.dtype(bool)):
             return True
         else:
             return False
@@ -102,6 +107,7 @@ class MessageExpression(RuleExpression):
         else:
             return True
 
+
 class EvaluationExpression(RuleExpression):
     """
     Expression that will return a single numeric value in [-1, 1].
@@ -110,10 +116,25 @@ class EvaluationExpression(RuleExpression):
     def _hook_check_output_value(self, output: Any) -> bool:
         if isinstance(output, np.ndarray) and len(output) == 1:
             output = output[0]
-        elif not isinstance(output, Number)    :
+        elif not isinstance(output, Number):
             return False
-            
+
         return isinstance(output, Number) and (abs(output) <= 1)
+
+
+class Rule:
+
+    def __init__(self, trigger: TriggerExpression, messager: MessageExpression,
+                 evaluator: EvaluationExpression):
+        self.__trigger = trigger
+        self.__messager = messager
+        self.__evaluator = evaluator
+
+    def check_fireable(db: DatabaseReader) -> bool:
+        pass
+
+    def fire(db: DatabaseReader) -> OutputMessage:
+        pass
 
 def parse_expression(expression: str) -> ParseResults:
     """
@@ -132,7 +153,7 @@ def parse_expression(expression: str) -> ParseResults:
     vars = extract_vars(expression)
     expression = substitute_vars(expression, vars)
     trigger_expr, message_expr, eval_expr = cut_rule_expression(expression)
-    
+
     trigger_expr = substitute_quantifiers(trigger_expr)
     message_expr = substitute_quantifiers(message_expr)
     eval_expr = substitute_quantifiers(eval_expr)
@@ -174,6 +195,7 @@ def __check_for_invalid_quantifiers(expression: str):
         if quantifier not in QUANTIFIER_KEYWORDS:
             raise ValueError("Invalid quantifier")
 
+
 def __check_for_missing_digit(expression: str):
     """
     Raise a ValueError if the expression does not contain any digit.
@@ -181,9 +203,10 @@ def __check_for_missing_digit(expression: str):
     if re.search(r'\d', expression) is None:
         raise ValueError("Quantifier must contain an index")
 
+
 def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
     regex = r'\(\s*' + quantifier + r'[\s_a-z]*\d*\s*\)'
-    
+
     match = re.search(regex, expression)
     while match is not None:
         replacement = __create_replacement_for_quantifier_match(
