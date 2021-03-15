@@ -1,0 +1,620 @@
+Manager:
+    main_screen: ms
+    settings: ss
+    profile: ps
+
+    MainScreen:
+        id: ms
+    SettingsScreen:
+        id: ss
+    ProfileScreen:
+        id: ps
+
+#81/255, 121/255, 144/255 dark blue
+#38/255, 70/255, 83/255 dark blue
+#2/255, 48/255, 71/255 dark blue
+#134/255, 211/255, 195/255 light blue
+#42/255, 157/255, 143/255 light blue
+#33/255, 158/255, 188/255 light blue
+#142/255, 202/255, 230/255 light blue
+#239/255, 119/255, 101/255 red
+#255/255, 183/255, 3/255
+
+#:import math math
+#:set color_blue 33/255, 158/255, 188/255
+#:set color_yellow 255/255, 183/255, 3/255
+#:set color_light_blue 142/255, 202/255, 230/255
+#:set color_dark_blue 2/255, 48/255, 71/255
+#:set color_orange 251/255, 133/255, 0/255
+#:set color_red 231/255, 111/255, 81/255
+
+<MainScreen>:
+    name: "main"
+    chat_window: chat
+    user_input: input
+    send_button: send_input
+    face: smile
+    progressbar: bar
+    level_display: level
+    theme_color: (255/255, 183/255, 3/255)
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+
+        canvas.before:
+            Color:
+                rgb: color_blue
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            size_hint: 1, None
+            height: 50
+            BoxLayout:
+
+                Button:
+                    size_hint_x: None
+                    width: 50
+                    padding_x: 10
+                    background_color: color_blue
+                    background_normal: ''
+                    on_release:
+                        app.root.current = "settings"
+                        app.root.transition.direction = "right"
+
+                    Image:
+                        source: 'settings.png'
+                        y: self.parent.y
+                        x: self.parent.x
+                        size: (self.parent.width, self.parent.height)
+
+                Label:
+                    text: ""
+                    size_hint_x: None
+                    width: 50
+
+                Label:
+                    text: "1"
+                    id: level
+                    size_hint_x: None
+                    color: color_dark_blue
+                    font_size: 20
+                    width: 50
+                    level_size: 50
+
+
+                    canvas.before:
+                    #dark progress border
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: (self.width + 25, self.level_size - 10)
+                            pos: (self.x - 25 + self.level_size, self.y + 5)
+                            radius: [20, 20]
+                        #yellow progress border
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: (self.width - 6 + 25, self.level_size - 10 - 6)
+                            pos: (self.x - 25 + 3 + self.level_size, self.y + 8)
+                            radius: [20, 20]
+                        #yellow level ellipse
+                        Color:
+                            rgb: root.theme_color
+                        Ellipse:
+                            size: (self.level_size, self.level_size)
+                            pos: (self.x, self.y)
+                        #dark level circle
+                        Color:
+                            rgb: color_dark_blue
+                        Line:
+                            width: 2.
+                            ellipse: (self.x, self.y, self.level_size, self.level_size)
+
+                Label:
+                    level_size: 50
+                    id: bar
+                    progress: 0
+                    progress_full: 3
+
+                    canvas.before:
+
+                        #dark progress border
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: (self.width, self.level_size - 10)
+                            pos: (self.x + 10, self.y + 5)
+                            radius: [20, 20]
+                        #yellow progress border
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: (((self.width - 6) /self.progress_full) * self.progress, self.level_size - 10 - 6)
+                            pos: (self.x + 3, self.y + 8)
+                            radius: [20, 20]
+
+                Label:
+                    text: ""
+                    size_hint_x: None
+                    width: 50
+
+
+                Button:
+                    size_hint_x: None
+                    width: 50
+                    padding_x: 10
+                    background_color: color_blue
+                    background_normal: ''
+                    on_release:
+                        app.root.current = "profile"
+                        app.root.transition.direction = "left"
+
+                    Image:
+                        source: 'profile_2.png'
+                        y: self.parent.y
+                        x: self.parent.x
+                        size: (self.parent.width, self.parent.height)
+
+        FloatLayout:
+            id: smile
+            happy: 1
+            height: 300
+            blink: 1
+            size_hint_y: None
+            center_left_x: self.x + self.width/3
+            center_right_x: self.x + self.width/3 * 2
+            center_both_y: self.y + self.height/2 + 50
+            mouse_angle_left: 0
+            mouse_angle_right: 0
+            background_image: ''
+            normal_color: 33/255, 158/255, 188/255
+
+            canvas.before:
+                Color:
+                    rgb: self.normal_color
+                RoundedRectangle:
+                    pos: (self.x, self.y + 10)
+                    size: (self.width, self.height - 20)
+                    source: self.background_image
+                #eyes
+                Color:
+                    rgb: color_dark_blue
+                Ellipse:
+                    size: (100, 100 * self.blink)
+                    pos: (self.x + self.width/3 - 50, self.y + self.height/2)
+                Ellipse:
+                    size: (100, 100 * self.blink)
+                    pos: (self.x + self.width/3 * 2 - 50, self.y + self.height/2)
+                #smile
+                Line:
+                    width: 10
+                    bezier:
+                        (self.x + self.width/3, self.y + self.happy * self.height/3 + 20, self.x + self.width/5 * 2, self.y + self.height/6 + 20,
+                        self.x + self.width/5 * 3, self.y + self.height/6 + 20, self.x + self.width/3 * 2, self.y + self.happy * self.height/3 + 20)
+                #pupils
+                Color:
+                    rgb: 1, 1, 1
+                Ellipse:
+                    size: (50, 50 * self.blink)
+                    pos: (self.x + self.width/3 - 25 + 10 * math.cos(math.radians(self.mouse_angle_left)), self.y + self.height/2 + 25 + 10 * math.sin(math.radians(self.mouse_angle_left)))
+                Ellipse:
+                    size: (50, 50 * self.blink)
+                    pos: (self.x + self.width/3 * 2 - 25 + 10 * math.cos(math.radians(self.mouse_angle_right)), self.y + self.height/2 + 25 + 10 * math.sin(math.radians(self.mouse_angle_right)))
+
+        BoxLayout:
+            size: self.size
+            size_hint_y: .4
+            padding: 5
+            canvas.before:
+                Color:
+                    rgb: root.theme_color
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [10, 10, 0, 0]
+
+            ScrollView:
+                bar_color: root.theme_color
+
+                canvas.before:
+                    Color:
+                        rgb: color_dark_blue
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+
+                ChatWindow:
+                    id: chat
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, None
+            height: 50
+
+            Input:
+                id: input
+
+            Button:
+                id: send_input
+                text: 'Send'
+                size_hint_x: 0.2
+                color: 0, 0, 0
+                background_color: 0,0,0,0
+                on_release: root.add_text()
+
+                canvas.before:
+                    Color:
+                        rgb: root.theme_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [0, 0, 10, 0]
+
+<UserTextInput>:
+    background_color: app.theme_color
+    padding_x: 10
+    color: 1, 1, 1
+
+<UserSlider>:
+    id: slider
+    min: 0
+    max: 10
+    value: 5
+    background_color: app.theme_color
+    background_normal: ''
+    on_touch_move: self.update_label()
+
+    canvas.before:
+        Color:
+            rgb: app.theme_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgb: color_dark_blue
+        RoundedRectangle:
+            pos: self.x + 5, self.y + 5
+            size: self.width - 10, self.height - 10
+
+<SliderLabel>:
+    id: slider_label
+    color: color_dark_blue
+    size_hint_x: 0.2
+
+    canvas.before:
+        Color:
+            rgb: app.theme_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [0, 0, 0, 10]
+
+<UserMSButton>:
+    background_color: color_dark_blue
+    background_normal: ''
+    color: app.theme_color
+
+<ChatWindow>:
+    orientation: 'vertical'
+    padding: 10, 10
+    spacing: 5
+    height: self.minimum_height
+    size_hint_y: None
+
+<TextRow>:
+    orientation:'horizontal'
+    size_hint: 1, None
+    padding: 10, 10
+    spacing: 10, 10
+    width: self.minimum_width
+    height: self.minimum_height
+
+<TextMessage>:
+    size_hint: 0.6, None
+    size: self.texture_size
+    text_size: root.width, None
+    padding: 10, 10
+    spacing: 10, 10
+    color: color_dark_blue
+    multiline: True
+    text: 'yes'
+
+
+    canvas.before:
+        Color:
+            rgb: app.theme_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+
+<EmptyMessage>:
+    size_hint: 0.4, None
+    size: self.texture_size
+    text_size: root.width, None
+    padding: 10, 10
+    text: ""
+
+<ImageMessage>:
+    size_hint: 0.4, None
+    padding: 10, 10
+
+    canvas.before:
+        Color:
+            rgb: 1, 1, 1
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            source: 'storm_trooper.jpg'
+
+<NewLevelPopup>:
+    title: ""
+    separator_height: 0
+    background_color: 0, 0, 0, 0
+    overlay_color: 0, 0, 0, 0.3
+    width: 400
+    height: 200
+    size_hint: (None, None)
+    current_level: 1
+
+    canvas.before:
+        Color:
+            rgb: app.theme_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgb: 2/255, 72/255, 90/255
+        RoundedRectangle:
+            size: (self.width - 10, self.height - 10)
+            pos: (self.x + 5, self.y + 5)
+
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            size_hint_y: 0.3
+            halign: 'center'
+            valign: 'center'
+            font_size: 40
+            text: "Congratulations!"
+            color: app.theme_color
+        Label:
+            size_hint_y: 0.7
+            halign: 'center'
+            valign: 'center'
+            font_size: 20
+            text: "You reached level %d \n and unlocked a new background" %root.current_level
+            color: app.theme_color
+
+
+<SettingsScreen>:
+    theme_color: (255/255, 183/255, 3/255)
+    name: "settings"
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 50
+
+        canvas.before:
+            Color:
+                rgb: color_blue
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: 50
+            Button:
+                size_hint_x: None
+                width: 50
+                padding_x: 10
+                background_color: color_blue
+                background_normal: ''
+                on_release:
+                    app.root.current = "profile"
+                    app.root.transition.direction = "right"
+
+                Image:
+                    source: 'profile_2.png'
+                    y: self.parent.y
+                    x: self.parent.x
+                    size: (self.parent.width, self.parent.height)
+
+            Label:
+                text: "Settings"
+                halign: 'center'
+                color: color_dark_blue
+                font_size: 40
+
+            Button:
+                size_hint_x: None
+                width: 50
+                padding_x: 10
+                background_color: color_blue
+                background_normal: ''
+                on_release:
+                    app.root.current = "main"
+                    app.root.transition.direction = "left"
+
+                Image:
+                    source: 'home.png'
+                    y: self.parent.y
+                    x: self.parent.x
+                    size: (self.parent.width, self.parent.height)
+        GridLayout:
+            cols: 2
+            padding: 20
+            spacing: 50
+            row_default_height: 50
+            row_force_default: True
+            canvas.before:
+                Color:
+                    rgb: root.theme_color
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                Color:
+                    rgb: color_dark_blue
+                RoundedRectangle:
+                    size: (self.width - 10, self.height - 10)
+                    pos: (self.x + 5, self.y + 5)
+
+            Label:
+                text: 'Choose theme:'
+                color: root.theme_color
+                font_size: 20
+                size_hint_x: 0.2
+
+            BoxLayout:
+                orientation: 'horizontal'
+                height: 50
+                spacing: 20
+                size_hint_y: None
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_theme(color_light_blue)
+
+                    canvas.before:
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_light_blue
+                        RoundedRectangle:
+                            size: (self.width - 10, self.height - 10)
+                            pos: (self.x + 5, self.y + 5)
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_theme(color_yellow)
+
+                    canvas.before:
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_yellow
+                        RoundedRectangle:
+                            size: (self.width - 10, self.height - 10)
+                            pos: (self.x + 5, self.y + 5)
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal:
+                    on_release:
+                        app.change_theme(color_orange)
+
+                    canvas.before:
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_orange
+                        RoundedRectangle:
+                            size: (self.width - 10, self.height - 10)
+                            pos: (self.x + 5, self.y + 5)
+
+            Label:
+                text: "Daily question maximum:"
+                font_size: 20
+                color: root.theme_color
+
+            BoxLayout:
+                Slider:
+                    size_hint_x: 0.8
+                    id: slider_daily_question
+                    min: 5
+                    max: 100
+                    value: 5
+
+                Label:
+                    size_hint_x: 0.2
+                    text: str(round(slider_daily_question.value))
+                    color: root.theme_color
+
+
+
+
+<ProfileScreen>:
+    theme_color: (255/255, 183/255, 3/255)
+    name: 'profile'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+
+        canvas.before:
+            Color:
+                rgb: color_blue
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: 50
+            Button:
+                size_hint_x: None
+                width: 50
+                padding_x: 10
+                background_color: color_blue
+                background_normal: ''
+                on_release:
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"
+
+                Image:
+                    source: 'home.png'
+                    y: self.parent.y
+                    x: self.parent.x
+                    size: (self.parent.width, self.parent.height)
+
+            Label:
+                text: "Profile"
+                halign: 'center'
+                color: color_dark_blue
+                font_size: 40
+
+            Button:
+                size_hint_x: None
+                width: 50
+                padding_x: 10
+                background_color: color_blue
+                background_normal: ''
+                on_release:
+                    app.root.current = "settings"
+                    app.root.transition.direction = "left"
+
+                Image:
+                    source: 'settings.png'
+                    y: self.parent.y
+                    x: self.parent.x
+                    size: (self.parent.width, self.parent.height)
+        Label:
