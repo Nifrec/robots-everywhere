@@ -28,8 +28,6 @@ def start_up():
     gui_to_output, output_to_gui = Pipe(duplex=True)
 
     gui_proc = Process(target=start_up_gui, args=(gui_to_questions, gui_to_output))
-    
-
     questions_proc = Process(target=start_up_questions, args=(questions_to_gui,))
     output_proc = Process(target=start_up_questions, args=(output_to_gui,))
 
@@ -37,6 +35,7 @@ def start_up():
     questions_proc.start()
     output_proc.start()
 
+    exit()
 
 def start_up_gui(conn_to_questions: Connection, conn_to_output: Connection):
     pass # Do something
