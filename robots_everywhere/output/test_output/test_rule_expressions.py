@@ -153,29 +153,45 @@ class RuleExpressionSubclassesTestCase(unittest.TestCase):
         """
         Output must be a float in [-1, 1].
         """
-        trigger = EvaluationExpression("0", set([]))
-        self.assertTrue(trigger._hook_check_output_value(0.5))
-        self.assertTrue(trigger._hook_check_output_value(1))
-        self.assertTrue(trigger._hook_check_output_value(-1))
-        self.assertTrue(trigger._hook_check_output_value(-0.5))
-        self.assertTrue(trigger._hook_check_output_value(1.0))
-        self.assertTrue(trigger._hook_check_output_value(0.0))
-        self.assertTrue(trigger._hook_check_output_value(0))
-        self.assertTrue(trigger._hook_check_output_value(np.array([1.0])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([1])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([0.5])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([0.0])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([-1.0])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([-1])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([-0.5])))
-        self.assertTrue(trigger._hook_check_output_value(np.array([-0.0])))
+        eval_expr = EvaluationExpression("0", set([]))
+        self.assertTrue(eval_expr._hook_check_output_value(0.5))
+        self.assertTrue(eval_expr._hook_check_output_value(1))
+        self.assertTrue(eval_expr._hook_check_output_value(-1))
+        self.assertTrue(eval_expr._hook_check_output_value(-0.5))
+        self.assertTrue(eval_expr._hook_check_output_value(1.0))
+        self.assertTrue(eval_expr._hook_check_output_value(0.0))
+        self.assertTrue(eval_expr._hook_check_output_value(0))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([1.0])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([1])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([0.5])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([0.0])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([-1.0])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([-1])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([-0.5])))
+        self.assertTrue(eval_expr._hook_check_output_value(np.array([-0.0])))
 
 
-        self.assertFalse(trigger._hook_check_output_value(-1.1))
-        self.assertFalse(trigger._hook_check_output_value(1.1))
-        self.assertFalse(trigger._hook_check_output_value(np.array([1.1])))
-        self.assertFalse(trigger._hook_check_output_value(
+        self.assertFalse(eval_expr._hook_check_output_value(-1.1))
+        self.assertFalse(eval_expr._hook_check_output_value(1.1))
+        self.assertFalse(eval_expr._hook_check_output_value(np.array([1.1])))
+        self.assertFalse(eval_expr._hook_check_output_value(
             np.array([0.5, 0.5])))
+
+    def test_message_expression_hook(self):
+        """
+        Output may not be [None] or an empty array.
+        """
+        message_expr = MessageExpression("0", set([]))
+        self.assertTrue(message_expr._hook_check_output_value([1, 2, 3]))
+        self.assertTrue(message_expr._hook_check_output_value(1.2))
+        self.assertTrue(message_expr._hook_check_output_value(
+            np.array([1, 2, 3])))
+        self.assertTrue(message_expr._hook_check_output_value(False))
+        self.assertTrue(message_expr._hook_check_output_value("Some string"))
+
+        self.assertFalse(message_expr._hook_check_output_value(None))
+        self.assertFalse(message_expr._hook_check_output_value([]))
+        self.assertFalse(message_expr._hook_check_output_value(np.array([])))
 
 if __name__ == "__main__":
     unittest.main()
