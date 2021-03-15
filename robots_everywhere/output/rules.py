@@ -120,11 +120,19 @@ def parse_expression(expression: str) -> ParseResults:
 
     For example, if some variable "my_var" occurs in the expression,
     it will be substituted by "vars['my_var']".
+
+    Also quantifiers will be substituted as described in the function
+    [substitute_quantifiers].
     """
     vars = extract_vars(expression)
     expression = substitute_vars(expression, vars)
-    trigger_expr, message_expr = cut_rule_expression(expression)
-    return ParseResults(trigger_expr, message_expr, vars)
+    trigger_expr, message_expr, eval_expr = cut_rule_expression(expression)
+    
+    trigger_expr = substitute_quantifiers(trigger_expr)
+    message_expr = substitute_quantifiers(message_expr)
+    eval_expr = substitute_quantifiers(eval_expr)
+
+    return ParseResults(trigger_expr, message_expr, eval_expr, vars)
 
 
 def substitute_quantifiers(expression: str) -> str:
