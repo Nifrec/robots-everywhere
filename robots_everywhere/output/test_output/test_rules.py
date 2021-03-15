@@ -21,7 +21,8 @@ Testcases for the source file rules.py.
 import unittest
 from robots_everywhere.output.rules import parse_expression, \
     cut_rule_expression, extract_vars, substitute_vars, ParseResults, \
-        substitute_quantifiers
+    substitute_quantifiers
+
 
 class ParseExpressionTestCase(unittest.TestCase):
 
@@ -31,15 +32,15 @@ class ParseExpressionTestCase(unittest.TestCase):
         self.assertEqual(expected.trigger_expr, result.trigger_expr)
         self.assertEqual(expected.message_expr, result.message_expr)
         self.assertSetEqual(expected.vars, result.vars)
-    
+
     def test_parse_1(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
         expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
         expected_message = "vars['work'][0]"
         expected_vars = {"sleep", "work"}
-        expected = ParseResults(expected_trigger, expected_message, expected_vars)
+        expected = ParseResults(expected_trigger, expected_message,
+                                "0", expected_vars)
         self.check_parse(expression, expected)
-        
 
     def test_parse_2(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
@@ -51,6 +52,18 @@ class ParseExpressionTestCase(unittest.TestCase):
         self.assertEqual(expected_trigger, result.trigger_expr)
         self.assertEqual(expected_message, result.message_expr)
         self.assertSetEqual(expected_vars, result.vars)
+
+    def test_parse_with_eval(self):
+        expression = ("RULE mean(sleep(last 3)) <= work(first 1) "
+                      "| work(first 1) | sleep(last 1)")
+        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][0]"
+        expected_message = "vars['work'][0]"
+        expected_eval = "vars['work'][-1]"
+        expected_vars = {"sleep", "work"}
+        expected = ParseResults(expected_trigger, expected_message,
+                                expected_eval, expected_vars)
+        self.check_parse(expression, expected)
+
 
 class SubstituteQuantifiersTestCase(unittest.TestCase):
 
@@ -98,19 +111,15 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
 
-
     def test_preserve_mean(self):
         """
-        The 'mean' keyword also uses brackets. 
+        The 'mean' keyword also uses brackets.
         They must be retained!
         """
         expression = "mean(something(allbutfirst2))"
         expected = "mean(something[2:])"
         result = substitute_quantifiers(expression)
         self.assertEqual(expected, result)
-
-    
-
 
     def test_substitute_multiple(self):
         """
@@ -123,7 +132,7 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
 
     def test_error_if_float(self):
         """
-        Floating point indices are sementically undefined 
+        Floating point indices are sementically undefined
         and are hence not allowed.
         """
         expression = "my_var(last 3.5)"
@@ -138,7 +147,6 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         expression = "my_var(last)"
         with self.assertRaises(ValueError):
             substitute_quantifiers(expression)
-
 
     def test_error_if_index_is_str(self):
         """
@@ -156,6 +164,7 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             substitute_quantifiers(expression)
 
+
 class SubstituteVarsTestCase(unittest.TestCase):
 
     def test_substitute_1(self):
@@ -164,6 +173,7 @@ class SubstituteVarsTestCase(unittest.TestCase):
         expected = "oh vars['hello'] dear vars['world']!"
         result = substitute_vars(expression, vars)
         self.assertEqual(result, expected)
+
 
 class ExtractVarsTestCase(unittest.TestCase):
 
@@ -212,8 +222,9 @@ class ExtractVarsTestCase(unittest.TestCase):
         expected = {"hello", "world"}
         self.assertSetEqual(extract_vars(expression), expected)
 
+
 class CutRuleExpressionTestCase(unittest.TestCase):
-    
+
     def test_error_if_not_starts_correct(self):
         """
         Each rule should be prefixed with "rule".
@@ -286,7 +297,7 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         expected = ("1", "2", "tanh(mean(2*a + 3) - 4)")
         result = cut_rule_expression(input_str)
         self.assertTupleEqual(expected, result)
-        
+
     def test_cut_left_empty(self):
         """
         Corner case: error needed if left side contains no expression.
@@ -311,6 +322,7 @@ class CutRuleExpressionTestCase(unittest.TestCase):
         input_str = "rule 1+a  | 3 | "
         with self.assertRaises(ValueError):
             cut_rule_expression(input_str)
+
 
 if __name__ == "__main__":
     unittest.main()
