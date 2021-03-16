@@ -38,9 +38,9 @@ class RuleFireableTestCase(unittest.TestCase):
 
     def setUp(self):
         expression = "vars_dict['my_var'][-1:] > vars_dict['my_var'][:1]"
-        trigger = TriggerExpression(expression, {'my_var'})
-        messager = MessageExpression("'m'", {})
-        evaluator = EvaluationExpression("0", {})
+        trigger = TriggerExpression(expression, set(['my_var']))
+        messager = MessageExpression("'m'", set([]))
+        evaluator = EvaluationExpression("0", set([]))
         self.rule = Rule(trigger, messager, evaluator)
 
     def test_fireable_true(self):
@@ -110,7 +110,7 @@ class RuleFireableTestCase(unittest.TestCase):
         db_reader = MockDatabaseReader(values)
 
         with self.assertRaises(RuntimeError):
-            self.rule.check_fireable(db_reader)
+            self.rule.fire(db_reader)
 
     def test_fire_output(self):
         values = {'my_var':[1.0, 1.5]}
