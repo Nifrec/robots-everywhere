@@ -313,11 +313,6 @@ class DatabaseWriterTestCase(unittest.TestCase):
         timestamp = 12345
         self.db.insert_new_value_of_var(var, new_value, timestamp)
 
-        test_query = """
-        SELECT value, timestamp
-        FROM test_var;
-        """
-
         df = self.db.get_rows_of_var(var)
 
         self.assertEqual(df.loc[0, "value"], new_value)
