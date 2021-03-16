@@ -31,7 +31,7 @@ DB_FILE_LOCATION = os.path.join(PROJECT_ROOT_DIR, DB_FILENAME)
 
 TYPE_TO_STR = {
     str: 'str',
-    float: 'flaot',
+    float: 'float',
     int: 'int',
     list: 'list',
     tuple: 'tuple',
