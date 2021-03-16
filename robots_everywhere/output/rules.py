@@ -146,10 +146,6 @@ class Rule:
         if self.__last_values == vars_dict:
             return False
 
-        print("NEQ")
-        print(self.__last_values)
-        print(vars_dict)
-
         if record_database_state:
             self.__last_values = vars_dict
 
@@ -168,7 +164,11 @@ class Rule:
         """
         if not self.check_fireable(db, True):
             raise RuntimeError("Rule is not fireable")
-        pass
+        
+        var_names = self.__messager.variable_names.union(
+            self.__evaluator.variable_names)
+        vars_dict = db.get_rows_of_vars(var_names)
+        return self.__messager(vars_dict), self.__evaluator(vars_dict)
 
 
 def parse_expression(expression: str) -> ParseResults:
