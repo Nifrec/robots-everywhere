@@ -109,5 +109,18 @@ class ReadVarsFromFileTestCase(unittest.TestCase):
         self.assertTupleEqual(result, expected)
 
 
+    def test_read_vars_from_file_if_already_in(self):
+        """
+        Corner case:
+        if a Variable already exists, it should be ignored.
+        If it is not ignored an error will be raised...
+        So this testcase passes if no error occurred.
+        """
+
+        self.db.create_new_var(Variable(int, "parrot"))
+
+        read_vars_form_file("test_file.txt", self.db)
+
+
 if __name__ == "__main__":
     unittest.main()
