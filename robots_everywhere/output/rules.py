@@ -29,7 +29,7 @@ from collections import namedtuple
 from robots_everywhere.message import OutputMessage
 from robots_everywhere.database.database import DatabaseReader
 ParseResults = namedtuple("ParseResults",
-                          ["trigger_expr", "message_expr", "eval_expr", "vars"])
+                          ["trigger_expr", "message_expr", "eval_expr", "vars_dict"])
 
 QUANTIFIER_TO_REPLACEMENT = {
     "allbutfirst": "[IDX:]",
@@ -57,9 +57,9 @@ class RuleExpression(abc.ABC):
 
     def __call__(self, variables_values: Dict[str, np.ndarray]):
         # These two are used as context by self.__expression under this name!
-        vars = variables_values
+        vars_dict = variables_values
         mean = np.mean
-        
+
         output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
@@ -129,9 +129,31 @@ class Rule:
         self.__trigger = trigger
         self.__messager = messager
         self.__evaluator = evaluator
+        self.__last_values: Dict[str, tuple] = None
 
-    def check_fireable(self, db: DatabaseReader) -> bool:
-        pass
+    def check_fireable(self, db: DatabaseReader,
+                       record_database_state: bool = False) -> bool:
+        """
+        Return True if:
+            * Any value in the trigger changed in the database 
+                since last recorded database state.
+            --AND--
+            * The trigger holds on the current values in the database.
+        """
+        var_names = self.__trigger.variable_names
+        vars_dict = db.get_rows_of_vars(var_names)
+
+        if self.__last_values == vars_dict:
+            return False
+
+        print("NEQ")
+        print(self.__last_values)
+        print(vars_dict)
+
+        if record_database_state:
+            self.__last_values = vars_dict
+
+        return self.__trigger(vars_dict)
 
     def fire(self, db: DatabaseReader) -> Tuple[Any, float]:
         """
@@ -144,31 +166,34 @@ class Rule:
             * Any: computed output of the Rule's MessageExpression.
             * float: computed evaluation of the Rule's EvaluationExpression.
         """
+        if not self.check_fireable(db, True):
+            raise RuntimeError("Rule is not fireable")
         pass
+
 
 def parse_expression(expression: str) -> ParseResults:
     """
     Map a raw rule-expression to Python code,
     where each variable is replaced by a dictionary entry.
-    It is assumed that this dictionary is called 'vars',
+    It is assumed that this dictionary is called 'vars_dict',
     and is indexed by the names of the variables. 
     The values are the 1D arrays of values of the Variable.
 
     For example, if some variable "my_var" occurs in the expression,
-    it will be substituted by "vars['my_var']".
+    it will be substituted by "vars_dict['my_var']".
 
     Also quantifiers will be substituted as described in the function
     [substitute_quantifiers].
     """
-    vars = extract_vars(expression)
-    expression = substitute_vars(expression, vars)
+    vars_dict = extract_vars(expression)
+    expression = substitute_vars(expression, vars_dict)
     trigger_expr, message_expr, eval_expr = cut_rule_expression(expression)
 
     trigger_expr = substitute_quantifiers(trigger_expr)
     message_expr = substitute_quantifiers(message_expr)
     eval_expr = substitute_quantifiers(eval_expr)
 
-    return ParseResults(trigger_expr, message_expr, eval_expr, vars)
+    return ParseResults(trigger_expr, message_expr, eval_expr, vars_dict)
 
 
 def substitute_quantifiers(expression: str) -> str:
@@ -235,13 +260,13 @@ def __create_replacement_for_quantifier_match(match: str, quantifier: str) -> st
     return replacement
 
 
-def substitute_vars(expression: str, vars: Set[str]):
+def substitute_vars(expression: str, vars_dict: Set[str]):
     """
-    Surround each occurence of each element "x" in [vars]
-    in [expression] as "vars['x']"
+    Surround each occurence of each element "x" in [vars_dict]
+    in [expression] as "vars_dict['x']"
     """
-    for var in vars:
-        expression = re.sub(var, f"vars['{var}']", expression)
+    for var in vars_dict:
+        expression = re.sub(var, f"vars_dict['{var}']", expression)
     return expression
 
 

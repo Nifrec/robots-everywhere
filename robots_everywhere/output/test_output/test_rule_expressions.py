@@ -41,90 +41,90 @@ class RuleExpressionTestCase(unittest.TestCase):
 
     def check_rule_expression(self,
                               expression: str,
-                              vars: Dict[str, np.ndarray],
+                              vars_dict: Dict[str, np.ndarray],
                               expected: Any):
-        rule_expr = TestingRuleExpression(expression, set(vars.keys()))
-        result = rule_expr(vars)
+        rule_expr = TestingRuleExpression(expression, set(vars_dict.keys()))
+        result = rule_expr(vars_dict)
         self.assertAlmostEqual(result, expected)
 
     def test_get_variables(self):
         expression = "0"
-        vars = {
+        vars_dict = {
             "var_1",
             "var_2"
         }
-        rule_expr = TestingRuleExpression(expression, vars)
-        self.assertSetEqual(rule_expr.variable_names, vars)
+        rule_expr = TestingRuleExpression(expression, vars_dict)
+        self.assertSetEqual(rule_expr.variable_names, vars_dict)
 
     def test_call_bool_false(self):
         """
         Basic case: two variables, boolean rule evaluating to False.
         """
-        expression = "vars['var_1'][0] > vars['var_2'][0]"
-        vars = {
+        expression = "vars_dict['var_1'][0] > vars_dict['var_2'][0]"
+        vars_dict = {
             'var_1': np.array([10]),
             'var_2': np.array([11])
         }
         expected = False
-        self.check_rule_expression(expression, vars, expected)
+        self.check_rule_expression(expression, vars_dict, expected)
 
     def test_call_bool_true(self):
         """
         Basic case: one variables, boolean rule evaluating to True.
         """
-        expression = "vars['var_1'][3] > 3"
-        vars = {
+        expression = "vars_dict['var_1'][3] > 3"
+        vars_dict = {
             'var_1': np.array([2, 1, 1, 3.1, -.01, 2.3]),
         }
         expected = True
-        self.check_rule_expression(expression, vars, expected)
+        self.check_rule_expression(expression, vars_dict, expected)
 
     def test_call_number_with_square(self):
         """
         Basic case: two variables, numeric output.
         """
-        expression = "vars['var_1'][0] + vars['var_2'][2]**2"
-        vars = {
+        expression = "vars_dict['var_1'][0] + vars_dict['var_2'][2]**2"
+        vars_dict = {
             'var_1': np.array([10, 12, 13]),
             'var_2': np.array([9, 8, 7])
         }
         expected = 10 + 7**2
-        self.check_rule_expression(expression, vars, expected)
+        self.check_rule_expression(expression, vars_dict, expected)
 
     def test_call_number_with_modulo(self):
         """
         Basic case: one variable, with modulo.
         """
-        expression = "vars['meh'][2] % vars['meh'][0]"
-        vars = {
+        expression = "vars_dict['meh'][2] % vars_dict['meh'][0]"
+        vars_dict = {
             'var_1': np.array([10, 12, 13]),
             'meh': np.array([9, 8, 100])
         }
         expected = 100 % 9
-        self.check_rule_expression(expression, vars, expected)
+        self.check_rule_expression(expression, vars_dict, expected)
 
     def test_call_number_with_mean(self):
         """
         Basic case: one variable, with mean.
         """
-        expression = "mean(vars['var_1'][:3])"
-        vars = {
+        expression = "mean(vars_dict['var_1'][:3])"
+        vars_dict = {
             'var_1': np.array([10, 12, 13, 14, 15, 16]),
         }
         expected = (10 + 12 + 13) / 3
-        self.check_rule_expression(expression, vars, expected)
+        self.check_rule_expression(expression, vars_dict, expected)
 
     def test_call_array(self):
         """
         Basic case: outputting an array is allowed.
         """
-        expression = "vars['var_1'][:3] + vars['var_1'][3:]"
-        vars = {
+        expression = "vars_dict['var_1'][:3] + vars_dict['var_1'][3:]"
+        vars_dict = {
             'var_1': np.array([10, 12, 13, 14, 15, 16]),
         }
         expected = np.array([24, 27, 29])
-        rule_expr = TestingRuleExpression(expression, set(vars.keys()))
-        result = rule_expr(vars)
+        rule_expr = TestingRuleExpression(expression, set(vars_dict.keys()))
+        result = rule_expr(vars_dict)
         np.testing.assert_allclose(result, expected)
 
 
