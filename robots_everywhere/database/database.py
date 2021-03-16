@@ -102,7 +102,7 @@ class DatabaseReader(Database):
 
     def get_rows_of_vars(self,
                          vars: Union[Sequence[Variable], Sequence[str]]
-                         ) -> Dict[str, tuple]:
+                         ) -> Dict[str, list]:
         result = dict()
         for var in vars:
             if isinstance(var, Variable):
