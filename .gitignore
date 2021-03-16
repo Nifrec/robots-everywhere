@@ -145,3 +145,4 @@ test_db.db-journal
 .gitignore
 .fuse_hidden000004a000000002
 software_organization/.fuse_hidden0000059800000001
+test_file.txt
