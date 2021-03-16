@@ -22,7 +22,7 @@ from abc import ABC
 import os
 import sqlite3
 import time
-from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
+from typing import Any, Dict, Union, Optional, Sequence, Tuple
 import pandas as pd
 
 import robots_everywhere.settings as settings
@@ -58,6 +58,7 @@ class Variable:
         else:
             return other.name == self.name and other.var_type == self.var_type
 
+
 class Database(ABC):
     def __init__(self, db_file: Optional[str] = None):
         """
@@ -72,7 +73,6 @@ class Database(ABC):
 
         self._conn = connect_to_db(db_file)
 
-
     @property
     def variables(self) -> Tuple[Variable]:
         """
@@ -80,26 +80,34 @@ class Database(ABC):
         """
         return get_all_vars(self._conn)
 
+
 class DatabaseReader(Database):
-    
-    def get_rows_of_var(self, var: Variable) -> pd.DataFrame:
+
+    def get_rows_of_var(self, var: Union[Variable, str]) -> pd.DataFrame:
         """
         Return all the values associated with a certain Variable
         that exists in the database.
 
         The columns are "value" and "timestamp".
         """
+        if isinstance(var, Variable):
+            var_name = var.name
+        else:
+            var_name = var
         query = f"""
         SELECT value, timestamp
-        FROM {var.name}
+        FROM {var_name}
         """
         return pd.read_sql(query, self._conn)
 
-    def get_rows_of_vars(self, vars: Sequence[Variable]) -> Dict[str, tuple]:
+    def get_rows_of_vars(self,
+                         vars: Union[Sequence[Variable], Sequence[str]]
+                         ) -> Dict[str, tuple]:
         result = dict()
-
         for var in vars:
-            result[var.name] = tuple(self.get_rows_of_var(var)['value'])
+            if isinstance(var, Variable):
+                var = var.name
+            result[var] = tuple(self.get_rows_of_var(var)['value'])
         return result
 
 
