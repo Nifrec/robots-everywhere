@@ -70,9 +70,11 @@ def read_vars_form_file(filename: str, db: DatabaseWriter):
     All cases are converted to lowercase.
     """
     var_lines = extract_lines_with_prefix_from_file(filename, "VAR")
+    existing_var_names = tuple(map(lambda x: x.name, db.variables))
     for var_line in var_lines:
         var_line = var_line.lower().split()
         new_var = Variable(eval(var_line[2]), var_line[1])
-        db.create_new_var(new_var)
+        if new_var.name not in existing_var_names:
+            db.create_new_var(new_var)
 
     
