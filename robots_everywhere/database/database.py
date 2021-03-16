@@ -22,7 +22,7 @@ from abc import ABC
 import os
 import sqlite3
 import time
-from typing import Any, Iterable, Optional, Tuple
+from typing import Any, Dict, Iterable, Optional, Sequence, Tuple
 import pandas as pd
 
 import robots_everywhere.settings as settings
@@ -95,6 +95,13 @@ class DatabaseReader(Database):
         """
         return pd.read_sql(query, self._conn)
 
+    def get_rows_of_vars(self, vars: Sequence[Variable]) -> Dict[str, tuple]:
+        result = dict()
+
+        for var in vars:
+            result[var.name] = tuple(self.get_rows_of_var(var)['value'])
+        return result
+
 
 class DatabaseWriter(DatabaseReader):
     """
@@ -120,11 +127,6 @@ class DatabaseWriter(DatabaseReader):
         else:
             insert_new_var_value(self._conn, var, new_value)
 
-    # def execute_sql_query(self,
-    #                       query: str,
-    #                       params: Optional[Iterable] = None
-    #                       ) -> pd.DataFrame:
-    #     return pd.read_sql(query, self._conn, params=params)
 
 def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
     if not os.path.exists(db_file):
