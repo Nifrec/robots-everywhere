@@ -130,10 +130,20 @@ class Rule:
         self.__messager = messager
         self.__evaluator = evaluator
 
-    def check_fireable(db: DatabaseReader) -> bool:
+    def check_fireable(self, db: DatabaseReader) -> bool:
         pass
 
-    def fire(db: DatabaseReader) -> OutputMessage:
+    def fire(self, db: DatabaseReader) -> Tuple[Any, float]:
+        """
+        Run the rule if it is fireable. 
+        If not fireable, a RuntimeError will raised.
+        Arguments:
+            * db: database providing most recent state of the variables
+                used in the rule.
+        Returns:
+            * Any: computed output of the Rule's MessageExpression.
+            * float: computed evaluation of the Rule's EvaluationExpression.
+        """
         pass
 
 def parse_expression(expression: str) -> ParseResults:
