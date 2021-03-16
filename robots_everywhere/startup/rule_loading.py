@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Functions to help loading rules and variables from a text file.
 """
+from robots_everywhere.database.database import DatabaseWriter, Variable
 import warnings
 
 from typing import List, Sequence
@@ -51,3 +52,17 @@ def read_rules_from_file(filename: str) -> List[Rule]:
         rule = Rule(trigger, messager, evaluator)
         output.append(rule)
     return output
+
+def read_vars_form_file(filename: str, db: DatabaseWriter):
+    """
+    Read all Variable definitions from a file,
+    and store any new Variables in the database.
+    All cases are converted to lowercase.
+    """
+    var_lines = extract_lines_with_prefix_from_file(filename, "VAR")
+    for var_line in var_lines:
+        var_line = var_line.lower().split()
+        new_var = Variable(eval(var_line[2]), var_line[1])
+        db.create_new_var(new_var)
+
+    
