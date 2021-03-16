@@ -19,13 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Functions to help loading rules and variables from a text file.
 """
 from robots_everywhere.database.database import DatabaseWriter, Variable
-import warnings
 
 from typing import List, Sequence
 from robots_everywhere.output.rules import Rule, TriggerExpression, \
-    MessageExpression, EvaluationExpression, cut_rule_expression, extract_vars
-
-warnings.warn("read_rules_from_file() not yet tested")
+    MessageExpression, EvaluationExpression, cut_rule_expression, \
+        extract_vars, substitute_quantifiers, substitute_vars
 
 def extract_lines_with_prefix_from_file(filename: str, prefix: str
                                         ) -> Sequence[str]:
@@ -46,9 +44,21 @@ def read_rules_from_file(filename: str) -> List[Rule]:
     rule_lines = extract_lines_with_prefix_from_file(filename, "RULE")
     for rule_line in rule_lines:
         cut_rule = cut_rule_expression(rule_line)
-        trigger = TriggerExpression(cut_rule[0], extract_vars(cut_rule[0]))
-        messager = MessageExpression(cut_rule[1], extract_vars(cut_rule[1]))
-        evaluator = TriggerExpression(cut_rule[2], extract_vars(cut_rule[2]))
+
+        trig_vars =  extract_vars(cut_rule[0])
+        trig_expr = substitute_vars(cut_rule[0], trig_vars)
+        trig_expr = substitute_quantifiers(trig_expr)
+        trigger = TriggerExpression(trig_expr, trig_vars)
+
+        mess_vars =  extract_vars(cut_rule[1])
+        mess_expr = substitute_vars(cut_rule[1], mess_vars)
+        mess_expr = substitute_quantifiers(mess_expr)
+        messager = MessageExpression(mess_expr, mess_vars)
+
+        eval_vars =  extract_vars(cut_rule[2])
+        eval_expr = substitute_vars(cut_rule[2], eval_vars)
+        eval_expr = substitute_quantifiers(eval_expr)
+        evaluator = EvaluationExpression(eval_expr, eval_vars)
         rule = Rule(trigger, messager, evaluator)
         output.append(rule)
     return output
