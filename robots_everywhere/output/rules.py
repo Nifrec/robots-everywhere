@@ -275,7 +275,7 @@ def extract_vars(expression: str) -> Set[str]:
     Extract variable names from an expression.
     Variable names should be [a-z_]*
     """
-    expression = re.sub(r'mean|first|allbut|last', " ", expression)
+    expression = re.sub(r'mean|first|allbut|last|tanh', " ", expression)
     results = set(re.findall(r'[a-z_]*', expression)).difference(("",))
     return results
 
