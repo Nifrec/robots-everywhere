@@ -18,8 +18,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Functions to help loading rules and variables from a text file.
 """
-from typing import Sequence
+import warnings
 
+from typing import List, Sequence
+from robots_everywhere.output.rules import Rule, TriggerExpression, \
+    MessageExpression, EvaluationExpression, cut_rule_expression, extract_vars
+
+warnings.warn("read_rules_from_file() not yet tested")
 
 def extract_lines_with_prefix_from_file(filename: str, prefix: str
                                         ) -> Sequence[str]:
@@ -33,3 +38,16 @@ def extract_lines_with_prefix_from_file(filename: str, prefix: str
         output = tuple(
             filter(lambda x: x.lower().startswith(prefix), all_lines))
         return output
+
+
+def read_rules_from_file(filename: str) -> List[Rule]:
+    output = []
+    rule_lines = extract_lines_with_prefix_from_file(filename, "RULE")
+    for rule_line in rule_lines:
+        cut_rule = cut_rule_expression(rule_line)
+        trigger = TriggerExpression(cut_rule[0], extract_vars(cut_rule[0]))
+        messager = MessageExpression(cut_rule[1], extract_vars(cut_rule[1]))
+        evaluator = TriggerExpression(cut_rule[2], extract_vars(cut_rule[2]))
+        rule = Rule(trigger, messager, evaluator)
+        output.append(rule)
+    return output
