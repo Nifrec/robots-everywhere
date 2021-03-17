@@ -59,7 +59,7 @@ class RuleExpression(abc.ABC):
         # These two are used as context by self.__expression under this name!
         vars_dict = variables_values
         mean = np.mean
-
+        tanh = np.tanh
         output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
@@ -143,7 +143,9 @@ class Rule:
         var_names = self.__trigger.variable_names
         vars_dict = db.get_rows_of_vars(var_names)
 
-        if self.__last_values == vars_dict:
+        if self.__last_values and all([key in vars_dict.keys() and
+                np.allclose(self.__last_values[key], vars_dict[key])
+                for key in self.__last_values.keys()]):
             return False
 
         if record_database_state:
@@ -164,11 +166,11 @@ class Rule:
         """
         if not self.check_fireable(db, True):
             raise RuntimeError("Rule is not fireable")
-        
+
         var_names = self.__messager.variable_names.union(
             self.__evaluator.variable_names)
         vars_dict = db.get_rows_of_vars(var_names)
-        return self.__messager(vars_dict), self.__evaluator(vars_dict)
+        return self.__messager(vars_dict), float(self.__evaluator(vars_dict))
 
 
 def parse_expression(expression: str) -> ParseResults:
