@@ -55,20 +55,34 @@ class OuputInvokerTestCase(unittest.TestCase):
         self.db.insert_new_value_of_var(self.var_2, 13.1, 4)
         self.db.insert_new_value_of_var(self.var_2, 14.1, 5)
 
-        trig = TriggerExpression(
+        # Rule #1 is fireable.
+        trig_1 = TriggerExpression(
             "mean(vars_dict['foo'][-2:]) > mean(vars_dict['bar'][-3:])",
             {"foo", "bar"})
-        mess = MessageExpression("vars_dict['foo'][-1:]", {"foo"})
-        eval = EvaluationExpression("vars_dict['bar'][-1:] - vars_dict['foo'][-1:]",
-                                    {"foo", "bar"})
-        self.rule = Rule(trig, mess, eval)
+        mess_1 = MessageExpression("vars_dict['foo'][-1:]", {"foo"})
+        eval_1 = EvaluationExpression(
+            "vars_dict['bar'][-1:] - vars_dict['foo'][-1:]", {"foo", "bar"})
+        self.rule_1 = Rule(trig_1, mess_1, eval_1)
+
+        # Rule #2 is not fireable.
+        trig_2 = TriggerExpression(
+            "vars_dict['foo'][:1] > mean(vars_dict['bar'][:2])", {"foo", "bar"})
+        mess_2 = MessageExpression("vars_dict['bar'][-1:]", {"bar"})
+        eval_2 = EvaluationExpression(
+            "vars_dict['bar'][:1] - vars_dict['foo'][-1:]", {"foo", "bar"})
+        self.rule_2 = Rule(trig_2, mess_2, eval_2)
 
     def test_find_fireable_rules(self):
-        invoker = OutputInvoker([self.rule], None, self.db)
+        invoker = OutputInvoker([self.rule_1, self.rule_2], None, self.db)
         result = invoker._find_fireable_rules()
 
-        self.assertTrue(self.rule.check_fireable(self.db), msg="Testcase broken")
-        self.assertSequenceEqual(result, [self.rule])
+        self.assertTrue(self.rule_1.check_fireable(self.db),
+                        msg="Testcase broken")
+
+        self.assertFalse(self.rule_2.check_fireable(self.db),
+                        msg="Testcase broken")
+
+        self.assertSequenceEqual(result, [self.rule_1])
 
 
 if __name__ == "__main__":
