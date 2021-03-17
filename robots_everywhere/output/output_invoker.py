@@ -24,9 +24,10 @@ and sends new output to the GUI.
 
 import time
 from multiprocessing.connection import Connection
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, Tuple
 import random
 import uuid
+from numbers import Number
 
 from robots_everywhere.message import OutputMessage
 from robots_everywhere.database.database import DatabaseReader
@@ -43,15 +44,18 @@ class OutputInvoker:
         self.__pipe = pipe_to_gui
         self.__db = database
 
-    def __find_fireable_rules(self) -> Iterable[Rule]:
-        pass
+    def _find_fireable_rules(self) -> Tuple[Rule]:
+        return tuple(filter(lambda x: x.check_fireable(self.__db), self.__rules))
 
-    def mainloop(self, sleep_time: float):
-        while True:
-            fireable_rules = self.__find_fireable_rules()
+    def mainloop(self, sleep_time: float, max_num_steps: Number = float('inf')):
+        step = 0
+        while step < max_num_steps:
+            step += 1
+
+            fireable_rules = self._find_fireable_rules()
             for rule in fireable_rules:
                 message_content, evaluation = rule.fire(self.__db)
-                message_id = uuid.uuid4() # Random unique number
+                message_id = uuid.uuid4().int # Random unique number
                 message = OutputMessage(message_id,
                                         str(message_content), 
                                         evaluation)

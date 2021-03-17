@@ -18,11 +18,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Testcases for the class OutputInvoker.
 """
+from robots_everywhere.message import OutputMessage
 import time
 import unittest
 import numpy as np
 from typing import Any, Dict
-
+import multiprocessing
 
 from robots_everywhere.database.database import Variable
 
@@ -59,17 +60,19 @@ class OuputInvokerTestCase(unittest.TestCase):
         trig_1 = TriggerExpression(
             "mean(vars_dict['foo'][-2:]) > mean(vars_dict['bar'][-3:])",
             {"foo", "bar"})
-        mess_1 = MessageExpression("vars_dict['foo'][-1:]", {"foo"})
+        mess_1 = MessageExpression("vars_dict['bar'][-1:]", {"foo"})
         eval_1 = EvaluationExpression(
-            "vars_dict['bar'][-1:] - vars_dict['foo'][-1:]", {"foo", "bar"})
+            "tanh(vars_dict['bar'][-1:] - vars_dict['foo'][-1:])",
+            {"foo", "bar"})
         self.rule_1 = Rule(trig_1, mess_1, eval_1)
 
         # Rule #2 is not fireable.
         trig_2 = TriggerExpression(
             "vars_dict['foo'][:1] > mean(vars_dict['bar'][:2])", {"foo", "bar"})
-        mess_2 = MessageExpression("vars_dict['bar'][-1:]", {"bar"})
+        mess_2 = MessageExpression("vars_dict['foo'][-1:]", {"bar"})
         eval_2 = EvaluationExpression(
-            "vars_dict['bar'][:1] - vars_dict['foo'][-1:]", {"foo", "bar"})
+            "tanh(vars_dict['bar'][:1] - vars_dict['foo'][-1:])",
+            {"foo", "bar"})
         self.rule_2 = Rule(trig_2, mess_2, eval_2)
 
     def test_find_fireable_rules(self):
@@ -80,9 +83,27 @@ class OuputInvokerTestCase(unittest.TestCase):
                         msg="Testcase broken")
 
         self.assertFalse(self.rule_2.check_fireable(self.db),
-                        msg="Testcase broken")
+                         msg="Testcase broken")
 
         self.assertSequenceEqual(result, [self.rule_1])
+
+    def test_mainloop_sends_output(self):
+        """
+        Run the OutputInvoker one step. One rule should fire,
+        test if a message received over the Pipe.
+        """
+        invoker_end, testcase_end = multiprocessing.Pipe(True)
+        invoker = OutputInvoker([self.rule_1, self.rule_2],
+                                invoker_end, self.db)
+
+        invoker.mainloop(0.001, 1)
+
+        self.assertTrue(testcase_end.poll(), "No message in the pipe")
+        result: OutputMessage = testcase_end.recv()
+        self.assertIsInstance(result, OutputMessage)
+        self.assertAlmostEqual(result.evaluation, np.tanh(0.1))
+        self.assertEqual(result.text, "[14.1]")
+        self.assertFalse(self.rule_1.check_fireable(self.db))
 
 
 if __name__ == "__main__":
