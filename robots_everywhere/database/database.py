@@ -24,6 +24,7 @@ import sqlite3
 import time
 from typing import Any, Dict, Union, Optional, Sequence, Tuple
 import pandas as pd
+import numpy as np
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
@@ -102,12 +103,12 @@ class DatabaseReader(Database):
 
     def get_rows_of_vars(self,
                          vars: Union[Sequence[Variable], Sequence[str]]
-                         ) -> Dict[str, tuple]:
+                         ) -> Dict[str, np.ndarray]:
         result = dict()
         for var in vars:
             if isinstance(var, Variable):
                 var = var.name
-            result[var] = tuple(self.get_rows_of_var(var)['value'])
+            result[var] = np.array(self.get_rows_of_var(var)['value'])
         return result
 
 
@@ -124,7 +125,8 @@ class DatabaseWriter(DatabaseReader):
         """
         add_var(self._conn, var)
 
-    def insert_new_value_of_var(self, var: Variable, new_value: Any, timestamp: Optional[int] = None):
+    def insert_new_value_of_var(self, var: Variable, new_value: Any,
+                                timestamp: Optional[int] = None):
         """
         Insert a new row in the table associated with [var].
         The type of new_value should match [var.var_type].
@@ -136,7 +138,8 @@ class DatabaseWriter(DatabaseReader):
             insert_new_var_value(self._conn, var, new_value)
 
 
-def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
+def connect_to_db(db_file: str = settings.DB_FILE_LOCATION
+                  ) -> sqlite3.Connection:
     if not os.path.exists(db_file):
         conn = sqlite3.connect(db_file)
         setup_vars_table(conn)

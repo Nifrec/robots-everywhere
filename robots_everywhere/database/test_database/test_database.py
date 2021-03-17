@@ -24,8 +24,9 @@ import unittest
 import os
 import sqlite3
 import pandas as pd
-from robots_everywhere import settings
+import numpy as np
 
+from robots_everywhere import settings
 from robots_everywhere.database.database import Variable
 from robots_everywhere.database.database import connect_to_db
 from robots_everywhere.database.database import add_var
@@ -340,7 +341,8 @@ class DatabaseWriterTestCase(unittest.TestCase):
             "bar": (10.5, 12.5)
         }
         
-        self.assertDictEqual(result, expected)
+        for key in expected.keys():
+            np.testing.assert_allclose(expected[key], result[key])
 
     def test_get_rows_of_vars(self):
         """
@@ -363,7 +365,8 @@ class DatabaseWriterTestCase(unittest.TestCase):
             "bar": (10.5, 12.5)
         }
         
-        self.assertDictEqual(result, expected)
+        for key in expected.keys():
+            np.testing.assert_allclose(expected[key], result[key])
 
 
 
