@@ -83,10 +83,10 @@ class TriggerExpression(RuleExpression):
     """
 
     def _hook_check_output_value(self, output: Any) -> bool:
-        if isinstance(output, bool):
+        if isinstance(output, (bool, np.bool_)):
             return True
         elif isinstance(output, np.ndarray) and (len(output) == 1) \
-                and (output.dtype == np.dtype(bool)):
+                and isinstance(output[0], np.bool_):
             return True
         else:
             return False
