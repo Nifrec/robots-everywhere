@@ -20,11 +20,10 @@ Testcases for the class Rule from rule.py
 """
 import unittest
 import pandas as pd
-from robots_everywhere.output.rules import EvaluationExpression, MessageExpression, TriggerExpression, parse_expression, \
-    cut_rule_expression, extract_vars, substitute_vars, ParseResults, \
-    substitute_quantifiers, Rule
+from robots_everywhere.output.rules import EvaluationExpression, \
+    MessageExpression, TriggerExpression, Rule
 
-from robots_everywhere.database.database import Variable, DatabaseReader
+from robots_everywhere.database.database import DatabaseReader
 
 class MockDatabaseReader(DatabaseReader):
     
