@@ -20,9 +20,10 @@ Rules for when and which output should be displayed to the user.
 """
 import abc
 import re
+import warnings
 
 import numpy as np
-from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized
+from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized, Union
 from numbers import Number
 from collections import namedtuple
 
@@ -58,12 +59,12 @@ class RuleExpression(abc.ABC):
     def __call__(self, variables_values: Dict[str, np.ndarray]):
         # These two are used as context by self.__expression under this name!
         vars_dict = variables_values
-        mean = np.mean
+        mean= np.mean
         tanh = np.tanh
         output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
-                "Evaluating rule-expression gave unexpected result")
+                f"Evaluating rule-expression gave unexpected result: {output}")
         return output
 
     @abc.abstractmethod
@@ -151,7 +152,15 @@ class Rule:
         if record_database_state:
             self.__last_values = vars_dict
 
-        return self.__trigger(vars_dict)
+        # Trigger cannot be evaluated if it requires
+        # more values than in the database.
+        # A cleaner solution is desireable here.
+        try:
+            return self.__trigger(vars_dict)
+        except:
+            warnings.warn("Expression could not be evaluated. "
+            "Not enough values in Database?")
+            return False
 
     def fire(self, db: DatabaseReader) -> Tuple[Any, float]:
         """
