@@ -1,6 +1,6 @@
 import math
 import time
-import user_info
+
 
 import kivy
 from kivy.animation import Animation
@@ -22,6 +22,8 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
+
+import robots_everywhere.gui.user_info as user_info
 
 kivy.require('2.0.0')
 Window.size = (600, 800)
