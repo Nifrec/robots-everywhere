@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Abstract base class for messages send between processes.
 """
 import abc
+from typing import Any
 from robots_everywhere.database.database import Variable
 
 class Message(abc.ABC):
@@ -31,24 +32,9 @@ class Message(abc.ABC):
     def id(self) -> int:
         return self.__id
 
-class TextMessage(Message):
+class VariableMessage(Message):
     """
-    Message with a string.
-    Can be used to package a text message to send to the user.
-    """
-
-    def __init__(self, id: int, text: str):
-        super().__init__(id)
-        assert isinstance(text, str)
-        self.__text = text
-
-    @property
-    def text(self) -> str:
-        return self.__text
-
-class VariableMessage(TextMessage):
-    """
-    Message containing a reference to a Variable and a string.
+    Message containing a reference to a Variable.
     """
 
     def __init__(self, id: int, var: Variable):
@@ -60,11 +46,37 @@ class VariableMessage(TextMessage):
     def variable(self) -> Variable:
         return self.__var
 
-class QuestionMessage(VariableMessage):
-    pass
+class TextMessage():
+    """
+    Message with a string.
+    Can be used to package a text message to send to the user.
+    """
+
+    def __init__(self, id: int, text: str):
+        super().__init__(id)
+        assert isinstance(text, str)
+        self.__text = text
+
+
+    @property
+    def text(self) -> str:
+        return self.__text
+
+class QuestionMessage(TextMessage, VariableMessage):
+    
+    def __init__(self, id: int, text: str, var: VariableMessage):
+        TextMessage.__init__(id, text)
+        VariableMessage.__init__(id, var)
 
 class AnswerMessage(VariableMessage):
-    pass
+    
+    def __init__(self, id: int, var: Variable, ans: Any):
+        super().__init__(id, var)
+        self.__ans = ans
+    
+    @property
+    def ans(self) -> Any:
+        return self.__ans
 
 class OutputMessage(TextMessage):
     """
