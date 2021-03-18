@@ -49,3 +49,5 @@ GET_ALL_VARS_QUERY = """
 SELECT var_type, var_name
 FROM variables;
 """
+
+OUTPUT_INVOKER_SLEEP_TIME = 1 #second
