@@ -18,15 +18,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Script to start-up the full program.
 """
-from robots_everywhere.startup.rule_loading import read_rules_from_file, read_vars_form_file
 from typing import List, Sequence
 from multiprocessing import Pipe, Process
 from multiprocessing.connection import Connection
 
+from robots_everywhere.output.output_invoker import OutputInvoker
 from robots_everywhere.output.rules import Rule
-from robots_everywhere.database.database import DatabaseWriter
+from robots_everywhere.database.database import DatabaseReader, DatabaseWriter
 import robots_everywhere.settings as settings
-
+from robots_everywhere.startup.rule_loading import read_rules_from_file, read_vars_form_file
+# from robots_everywhere.gui.motifact_main import MotiFactApp
 
 def start_up():
 
@@ -69,7 +70,7 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
     questions_proc = Process(target=start_up_questions,
                              args=(questions_to_gui,))
     output_proc = Process(target=start_up_output_generator,
-                          args=(output_to_gui, rules))
+                          args=(output_to_gui, rules, db))
 
     gui_proc.start()
     questions_proc.start()
@@ -77,15 +78,19 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
 
 
 def start_up_gui(conn_to_questions: Connection, conn_to_output: Connection):
-    pass  # Do something
+    # MotiFactApp().run()
+    pass
 
 
 def start_up_questions(conn_to_gui: Connection):
     pass  # Do something
 
 
-def start_up_output_generator(conn_to_gui: Connection, rules: Sequence[Rule]):
-    pass  # Do something
+def start_up_output_generator(conn_to_gui: Connection,
+                              rules: Sequence[Rule],
+                              database: DatabaseReader):
+    output_invoker = OutputInvoker(rules, conn_to_gui, database)
+    output_invoker.mainloop(settings.OUTPUT_INVOKER_SLEEP_TIME)
 
 
 if __name__ == "__main__":
