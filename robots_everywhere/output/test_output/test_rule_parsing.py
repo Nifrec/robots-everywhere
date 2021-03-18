@@ -31,37 +31,37 @@ class ParseExpressionTestCase(unittest.TestCase):
 
         self.assertEqual(expected.trigger_expr, result.trigger_expr)
         self.assertEqual(expected.message_expr, result.message_expr)
-        self.assertSetEqual(expected.vars, result.vars)
+        self.assertSetEqual(expected.vars_dict, result.vars_dict)
 
     def test_parse_1(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
-        expected_message = "vars['work'][:1]"
-        expected_vars = {"sleep", "work"}
+        expected_trigger = "mean(vars_dict['sleep'][-3:]) <= vars_dict['work'][:1]"
+        expected_message = "vars_dict['work'][:1]"
+        expected_vars_dict = {"sleep", "work"}
         expected = ParseResults(expected_trigger, expected_message,
-                                "0", expected_vars)
+                                "0", expected_vars_dict)
         self.check_parse(expression, expected)
 
     def test_parse_2(self):
         expression = "RULE mean(sleep(last 3)) <= work(first 1) | work(first 1)"
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
-        expected_message = "vars['work'][:1]"
-        expected_vars = {"sleep", "work"}
+        expected_trigger = "mean(vars_dict['sleep'][-3:]) <= vars_dict['work'][:1]"
+        expected_message = "vars_dict['work'][:1]"
+        expected_vars_dict = {"sleep", "work"}
         result = parse_expression(expression)
 
         self.assertEqual(expected_trigger, result.trigger_expr)
         self.assertEqual(expected_message, result.message_expr)
-        self.assertSetEqual(expected_vars, result.vars)
+        self.assertSetEqual(expected_vars_dict, result.vars_dict)
 
     def test_parse_with_eval(self):
         expression = ("RULE mean(sleep(last 3)) <= work(first 1) "
                       "| work(first 1) | sleep(last 1)")
-        expected_trigger = "mean(vars['sleep'][-3:]) <= vars['work'][:1]"
-        expected_message = "vars['work'][:1]"
-        expected_eval = "vars['work'][-1]"
-        expected_vars = {"sleep", "work"}
+        expected_trigger = "mean(vars_dict['sleep'][-3:]) <= vars_dict['work'][:1]"
+        expected_message = "vars_dict['work'][:1]"
+        expected_eval = "vars_dict['work'][-1]"
+        expected_vars_dict = {"sleep", "work"}
         expected = ParseResults(expected_trigger, expected_message,
-                                expected_eval, expected_vars)
+                                expected_eval, expected_vars_dict)
         self.check_parse(expression, expected)
 
 
@@ -165,17 +165,17 @@ class SubstituteQuantifiersTestCase(unittest.TestCase):
             substitute_quantifiers(expression)
 
 
-class SubstituteVarsTestCase(unittest.TestCase):
+class Substitutevars_dictTestCase(unittest.TestCase):
 
     def test_substitute_1(self):
-        vars = {"hello", "world"}
+        vars_dict = {"hello", "world"}
         expression = "oh hello dear world!"
-        expected = "oh vars['hello'] dear vars['world']!"
-        result = substitute_vars(expression, vars)
+        expected = "oh vars_dict['hello'] dear vars_dict['world']!"
+        result = substitute_vars(expression, vars_dict)
         self.assertEqual(result, expected)
 
 
-class ExtractVarsTestCase(unittest.TestCase):
+class Extractvars_dictTestCase(unittest.TestCase):
 
     def test_extract_vars(self):
         expression = "my_var, my_other_var, (some_var)"

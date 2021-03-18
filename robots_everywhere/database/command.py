@@ -22,7 +22,7 @@ import abc
 from typing import List, Tuple, Any, Optional
 import time
 
-from robots_everywhere.database.database_writer import DatabaseWriter, Variable
+from robots_everywhere.database.database import DatabaseWriter, Variable
 
 
 class DBCommand(abc.ABC):

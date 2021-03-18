@@ -20,13 +20,16 @@ Rules for when and which output should be displayed to the user.
 """
 import abc
 import re
+
 import numpy as np
 from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized
 from numbers import Number
 from collections import namedtuple
 
+from robots_everywhere.message import OutputMessage
+from robots_everywhere.database.database import DatabaseReader
 ParseResults = namedtuple("ParseResults",
-                          ["trigger_expr", "message_expr", "eval_expr", "vars"])
+                          ["trigger_expr", "message_expr", "eval_expr", "vars_dict"])
 
 QUANTIFIER_TO_REPLACEMENT = {
     "allbutfirst": "[IDX:]",
@@ -53,8 +56,10 @@ class RuleExpression(abc.ABC):
         return self.__variables.copy()
 
     def __call__(self, variables_values: Dict[str, np.ndarray]):
-        vars = variables_values
+        # These two are used as context by self.__expression under this name!
+        vars_dict = variables_values
         mean = np.mean
+        tanh = np.tanh
         output = eval(self.__expression)
         if not self._hook_check_output_value(output):
             raise RuntimeError(
@@ -78,10 +83,10 @@ class TriggerExpression(RuleExpression):
     """
 
     def _hook_check_output_value(self, output: Any) -> bool:
-        if isinstance(output, bool):
+        if isinstance(output, (bool, np.bool_)):
             return True
         elif isinstance(output, np.ndarray) and (len(output) == 1) \
-            and (output.dtype == np.dtype(bool)):
+                and isinstance(output[0], np.bool_):
             return True
         else:
             return False
@@ -102,6 +107,7 @@ class MessageExpression(RuleExpression):
         else:
             return True
 
+
 class EvaluationExpression(RuleExpression):
     """
     Expression that will return a single numeric value in [-1, 1].
@@ -110,34 +116,86 @@ class EvaluationExpression(RuleExpression):
     def _hook_check_output_value(self, output: Any) -> bool:
         if isinstance(output, np.ndarray) and len(output) == 1:
             output = output[0]
-        elif not isinstance(output, Number)    :
+        elif not isinstance(output, Number):
             return False
-            
+
         return isinstance(output, Number) and (abs(output) <= 1)
+
+
+class Rule:
+
+    def __init__(self, trigger: TriggerExpression, messager: MessageExpression,
+                 evaluator: EvaluationExpression):
+        self.__trigger = trigger
+        self.__messager = messager
+        self.__evaluator = evaluator
+        self.__last_values: Dict[str, tuple] = None
+
+    def check_fireable(self, db: DatabaseReader,
+                       record_database_state: bool = False) -> bool:
+        """
+        Return True if:
+            * Any value in the trigger changed in the database 
+                since last recorded database state.
+            --AND--
+            * The trigger holds on the current values in the database.
+        """
+        var_names = self.__trigger.variable_names
+        vars_dict = db.get_rows_of_vars(var_names)
+
+        if self.__last_values and all([key in vars_dict.keys() and
+                np.allclose(self.__last_values[key], vars_dict[key])
+                for key in self.__last_values.keys()]):
+            return False
+
+        if record_database_state:
+            self.__last_values = vars_dict
+
+        return self.__trigger(vars_dict)
+
+    def fire(self, db: DatabaseReader) -> Tuple[Any, float]:
+        """
+        Run the rule if it is fireable. 
+        If not fireable, a RuntimeError will raised.
+        Arguments:
+            * db: database providing most recent state of the variables
+                used in the rule.
+        Returns:
+            * Any: computed output of the Rule's MessageExpression.
+            * float: computed evaluation of the Rule's EvaluationExpression.
+        """
+        if not self.check_fireable(db, True):
+            raise RuntimeError("Rule is not fireable")
+
+        var_names = self.__messager.variable_names.union(
+            self.__evaluator.variable_names)
+        vars_dict = db.get_rows_of_vars(var_names)
+        return self.__messager(vars_dict), float(self.__evaluator(vars_dict))
+
 
 def parse_expression(expression: str) -> ParseResults:
     """
     Map a raw rule-expression to Python code,
     where each variable is replaced by a dictionary entry.
-    It is assumed that this dictionary is called 'vars',
+    It is assumed that this dictionary is called 'vars_dict',
     and is indexed by the names of the variables. 
     The values are the 1D arrays of values of the Variable.
 
     For example, if some variable "my_var" occurs in the expression,
-    it will be substituted by "vars['my_var']".
+    it will be substituted by "vars_dict['my_var']".
 
     Also quantifiers will be substituted as described in the function
     [substitute_quantifiers].
     """
-    vars = extract_vars(expression)
-    expression = substitute_vars(expression, vars)
+    vars_dict = extract_vars(expression)
+    expression = substitute_vars(expression, vars_dict)
     trigger_expr, message_expr, eval_expr = cut_rule_expression(expression)
-    
+
     trigger_expr = substitute_quantifiers(trigger_expr)
     message_expr = substitute_quantifiers(message_expr)
     eval_expr = substitute_quantifiers(eval_expr)
 
-    return ParseResults(trigger_expr, message_expr, eval_expr, vars)
+    return ParseResults(trigger_expr, message_expr, eval_expr, vars_dict)
 
 
 def substitute_quantifiers(expression: str) -> str:
@@ -174,6 +232,7 @@ def __check_for_invalid_quantifiers(expression: str):
         if quantifier not in QUANTIFIER_KEYWORDS:
             raise ValueError("Invalid quantifier")
 
+
 def __check_for_missing_digit(expression: str):
     """
     Raise a ValueError if the expression does not contain any digit.
@@ -181,9 +240,10 @@ def __check_for_missing_digit(expression: str):
     if re.search(r'\d', expression) is None:
         raise ValueError("Quantifier must contain an index")
 
+
 def __replace_single_quantifier_type(expression: str, quantifier: str) -> str:
     regex = r'\(\s*' + quantifier + r'[\s_a-z]*\d*\s*\)'
-    
+
     match = re.search(regex, expression)
     while match is not None:
         replacement = __create_replacement_for_quantifier_match(
@@ -202,13 +262,13 @@ def __create_replacement_for_quantifier_match(match: str, quantifier: str) -> st
     return replacement
 
 
-def substitute_vars(expression: str, vars: Set[str]):
+def substitute_vars(expression: str, vars_dict: Set[str]):
     """
-    Surround each occurence of each element "x" in [vars]
-    in [expression] as "vars['x']"
+    Surround each occurence of each element "x" in [vars_dict]
+    in [expression] as "vars_dict['x']"
     """
-    for var in vars:
-        expression = re.sub(var, f"vars['{var}']", expression)
+    for var in vars_dict:
+        expression = re.sub(var, f"vars_dict['{var}']", expression)
     return expression
 
 
@@ -217,7 +277,7 @@ def extract_vars(expression: str) -> Set[str]:
     Extract variable names from an expression.
     Variable names should be [a-z_]*
     """
-    expression = re.sub(r'mean|first|allbut|last', " ", expression)
+    expression = re.sub(r'mean|first|allbut|last|tanh', " ", expression)
     results = set(re.findall(r'[a-z_]*', expression)).difference(("",))
     return results
 

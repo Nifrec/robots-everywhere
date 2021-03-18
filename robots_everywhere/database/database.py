@@ -18,11 +18,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Files for setting up a SQLite database, storing and retrieving information.
 """
+from abc import ABC
 import os
 import sqlite3
 import time
-from typing import Any, Iterable, Optional, Tuple
+from typing import Any, Dict, Union, Optional, Sequence, Tuple
 import pandas as pd
+import numpy as np
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
@@ -57,12 +59,8 @@ class Variable:
         else:
             return other.name == self.name and other.var_type == self.var_type
 
-class DatabaseWriter:
-    """
-    Class providing a simplified interface to interacting 
-    with a user's database.
-    """
 
+class Database(ABC):
     def __init__(self, db_file: Optional[str] = None):
         """
         Arguments:
@@ -74,53 +72,74 @@ class DatabaseWriter:
         if db_file is None:
             db_file = settings.DB_FILE_LOCATION
 
-        self.__conn = connect_to_db(db_file)
+        self._conn = connect_to_db(db_file)
 
     @property
     def variables(self) -> Tuple[Variable]:
         """
         Get all Variables registered in the loaded database.
         """
-        return get_all_vars(self.__conn)
+        return get_all_vars(self._conn)
 
-    def create_new_var(self, var: Variable):
-        """
-        Register a new Variable in the currenly loaded database.
-        Creates a new table for this variable.
-        """
-        add_var(self.__conn, var)
 
-    def get_rows_of_var(self, var: Variable) -> pd.DataFrame:
+class DatabaseReader(Database):
+
+    def get_rows_of_var(self, var: Union[Variable, str]) -> pd.DataFrame:
         """
         Return all the values associated with a certain Variable
         that exists in the database.
 
         The columns are "value" and "timestamp".
         """
+        if isinstance(var, Variable):
+            var_name = var.name
+        else:
+            var_name = var
         query = f"""
         SELECT value, timestamp
-        FROM {var.name}
+        FROM {var_name}
         """
-        return pd.read_sql(query, self.__conn)
+        return pd.read_sql(query, self._conn)
 
-    def insert_new_value_of_var(self, var: Variable, new_value: Any, timestamp: Optional[int] = None):
+    def get_rows_of_vars(self,
+                         vars: Union[Sequence[Variable], Sequence[str]]
+                         ) -> Dict[str, np.ndarray]:
+        result = dict()
+        for var in vars:
+            if isinstance(var, Variable):
+                var = var.name
+            result[var] = np.array(self.get_rows_of_var(var)['value'])
+        return result
+
+
+class DatabaseWriter(DatabaseReader):
+    """
+    Class providing a simplified interface to interacting 
+    with a user's database.
+    """
+
+    def create_new_var(self, var: Variable):
+        """
+        Register a new Variable in the currenly loaded database.
+        Creates a new table for this variable.
+        """
+        add_var(self._conn, var)
+
+    def insert_new_value_of_var(self, var: Variable, new_value: Any,
+                                timestamp: Optional[int] = None):
         """
         Insert a new row in the table associated with [var].
         The type of new_value should match [var.var_type].
         The time of entry is also recorded, and can optionally be overridden.
         """
         if timestamp is not None:
-            insert_new_var_value(self.__conn, var, new_value, timestamp)
+            insert_new_var_value(self._conn, var, new_value, timestamp)
         else:
-            insert_new_var_value(self.__conn, var, new_value)
+            insert_new_var_value(self._conn, var, new_value)
 
-    def execute_sql_query(self,
-                          query: str,
-                          params: Optional[Iterable] = None
-                          ) -> pd.DataFrame:
-        return pd.read_sql(query, self.__conn, params=params)
 
-def connect_to_db(db_file: str = settings.DB_FILE_LOCATION) -> sqlite3.Connection:
+def connect_to_db(db_file: str = settings.DB_FILE_LOCATION
+                  ) -> sqlite3.Connection:
     if not os.path.exists(db_file):
         conn = sqlite3.connect(db_file)
         setup_vars_table(conn)

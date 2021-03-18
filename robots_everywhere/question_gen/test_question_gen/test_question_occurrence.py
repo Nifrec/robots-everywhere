@@ -21,7 +21,7 @@ Testcases for class QuestionOccurrence in question_occurrence.py
 import unittest
 from robots_everywhere.question_gen.question import Question
 from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 
 
 class MyTestCase(unittest.TestCase):

@@ -21,8 +21,8 @@ Testcases for command.py
 from typing import Any
 import unittest
 from robots_everywhere.database.command import InsertCommand
-from robots_everywhere.database.database_writer import DatabaseWriter
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import DatabaseWriter
+from robots_everywhere.database.database import Variable
 
 
 class MockDatabaseWriter(DatabaseWriter):

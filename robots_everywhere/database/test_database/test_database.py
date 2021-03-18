@@ -17,21 +17,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 Testcases for class DatabaseWriter and its auxiliary methods
-in the file database_writer.py
+in the file database.py
 """
 import time
 import unittest
 import os
 import sqlite3
 import pandas as pd
-from robots_everywhere import settings
+import numpy as np
 
-from robots_everywhere.database.database_writer import Variable
-from robots_everywhere.database.database_writer import connect_to_db
-from robots_everywhere.database.database_writer import add_var
-from robots_everywhere.database.database_writer import get_all_vars
-from robots_everywhere.database.database_writer import insert_new_var_value
-from robots_everywhere.database.database_writer import DatabaseWriter
+from robots_everywhere import settings
+from robots_everywhere.database.database import Variable
+from robots_everywhere.database.database import connect_to_db
+from robots_everywhere.database.database import add_var
+from robots_everywhere.database.database import get_all_vars
+from robots_everywhere.database.database import insert_new_var_value
+from robots_everywhere.database.database import DatabaseWriter
 from robots_everywhere.settings import PROJECT_ROOT_DIR
 
 TEST_DB_NAME = os.path.join(PROJECT_ROOT_DIR, "test_db.db")
@@ -313,15 +314,60 @@ class DatabaseWriterTestCase(unittest.TestCase):
         timestamp = 12345
         self.db.insert_new_value_of_var(var, new_value, timestamp)
 
-        test_query = """
-        SELECT value, timestamp
-        FROM test_var;
-        """
-
         df = self.db.get_rows_of_var(var)
 
         self.assertEqual(df.loc[0, "value"], new_value)
         self.assertEqual(df.loc[0, "timestamp"], timestamp)
+
+    def test_get_rows_of_vars_input_variables(self):
+        """
+        Test get_rows_of_vars(), 
+        given as input a sequence of Variable instances.
+        """
+        var_foo = Variable(int, "foo")
+        var_bar = Variable(float, "bar")
+        self.db.create_new_var(var_foo)
+        self.db.create_new_var(var_bar)
+        self.db.insert_new_value_of_var(var_foo, 10)
+        self.db.insert_new_value_of_var(var_bar, 10.5)
+        # Pretend this happens a second later!
+        self.db.insert_new_value_of_var(var_foo, 12, int(time.time()) + 1)
+        self.db.insert_new_value_of_var(var_bar, 12.5, int(time.time()) + 1)
+
+        result = self.db.get_rows_of_vars((var_foo, var_bar))
+        
+        expected = {
+            "foo": (10, 12),
+            "bar": (10.5, 12.5)
+        }
+        
+        for key in expected.keys():
+            np.testing.assert_allclose(expected[key], result[key])
+
+    def test_get_rows_of_vars(self):
+        """
+        Test get_rows_of_vars(), given as input a sequence of strings.
+        """
+        var_foo = Variable(int, "foo")
+        var_bar = Variable(float, "bar")
+        self.db.create_new_var(var_foo)
+        self.db.create_new_var(var_bar)
+        self.db.insert_new_value_of_var(var_foo, 10)
+        self.db.insert_new_value_of_var(var_bar, 10.5)
+        # Pretend this happens a second later!
+        self.db.insert_new_value_of_var(var_foo, 12, int(time.time()) + 1)
+        self.db.insert_new_value_of_var(var_bar, 12.5, int(time.time()) + 1)
+
+        result = self.db.get_rows_of_vars(("foo", "bar"))
+        
+        expected = {
+            "foo": (10, 12),
+            "bar": (10.5, 12.5)
+        }
+        
+        for key in expected.keys():
+            np.testing.assert_allclose(expected[key], result[key])
+
 
 
 if __name__ == "__main__":

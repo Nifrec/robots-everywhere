@@ -1,0 +1,4 @@
+VAR sleep int
+VAR cycle float
+
+RULE mean(sleep(last 3)) > cycle(last 1) | mean(cycle(last 3)) | sleep(last 1)
