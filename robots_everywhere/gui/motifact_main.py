@@ -23,8 +23,12 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 
+import os
 import robots_everywhere.gui.user_info as user_info
+import robots_everywhere.settings as settings
 
+MAIN_KV_FILE = os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere",
+                            "gui", "motifact_main.kv")
 kivy.require('2.0.0')
 Window.size = (600, 800)
 
@@ -42,7 +46,6 @@ class MainScreen(Screen):
     send_button = ObjectProperty(None)
     conversation_counter = NumericProperty(0)
     level = NumericProperty(1)
-
 
     def add_text(self):
 
@@ -92,7 +95,8 @@ class MainScreen(Screen):
         self.conversation_counter += 1
 
     def blink(self, ms):
-        anim = Animation(blink=0, duration=.1) + Animation(blink=1, duration=.1)
+        anim = Animation(blink=0, duration=.1) + \
+            Animation(blink=1, duration=.1)
         anim.start(self.face)
 
     def follow_mouse(self, ms):
@@ -256,7 +260,8 @@ class Manager(ScreenManager):
         dynamic_elements.append(text_1)
         conversation[0] = ['text_box', text_1]
         text_2 = TextMessage()
-        text_2.add_text("Nice to meet you [NAME]! What do you think of this awesome picture?")
+        text_2.add_text(
+            "Nice to meet you [NAME]! What do you think of this awesome picture?")
         dynamic_elements.append(text_2)
         image = ImageMessage()
         conversation[1] = ['text_box', text_2, image]
@@ -291,12 +296,12 @@ class MotiFactApp(App):
         for widget in dynamic_elements:
             widget.theme_color = self.theme_color
 
-
     def build(self):
-        self.main_builder = Builder.load_file("motifact_main.kv")
+        self.main_builder = Builder.load_file(MAIN_KV_FILE)
         Clock.schedule_once(self.main_builder.start, 0)
         Clock.schedule_interval(self.main_builder.main_screen.blink, 5)
-        Clock.schedule_interval(self.main_builder.main_screen.follow_mouse, .05)
+        Clock.schedule_interval(
+            self.main_builder.main_screen.follow_mouse, .05)
         return self.main_builder
 
 
