@@ -18,7 +18,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Class for organizing a sorf of 'calendar' of sets of recurring questions.
 """
+import time
 from typing import Set
+
 from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
 
 
@@ -26,6 +28,10 @@ class QuestionSchedule:
     # Placeholder!!!
     pass
 
-    def get_new_occurences(current_time: float = None
+    def __init__(self, question_sets, prev_timestamp = time.time()):
+        self.__prev_timestamp = prev_timestamp
+
+    def get_new_occurences(self,
+                           current_time: float = None
                            ) -> Set[QuestionOccurrence]:
         pass
