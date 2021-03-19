@@ -19,10 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Testcases for class QuestionCommunicator.
 """
 from robots_everywhere.question_gen.question import Question
-from typing import Iterable, Set
+from typing import Iterable, Any, Tuple, Dict
 import unittest
 import multiprocessing
 import time
+import numpy as np
 
 from robots_everywhere.database.database import Variable
 from robots_everywhere.message import AnswerMessage, QuestionMessage
@@ -45,7 +46,7 @@ class MockQuestionSchedule(QuestionSchedule):
     def __init__(self, output: Iterable[QuestionOccurrence]):
         self.output = output
 
-    def get_new_occurences(self, _) -> Iterable[QuestionOccurrence]:
+    def get_new_occurrences(self, current_time) -> Tuple[QuestionOccurrence]:
         return self.output
 
 
@@ -66,7 +67,7 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         and an InsertCommand should be stored with the same ID.
         """
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
-        answer = AnswerMessage(id=12345, var=self.var_foo, value=13)
+        answer = AnswerMessage(id_num=12345, var=self.var_foo, value=13)
         testsuite_end.send(answer)
 
         communicator = QuestionCommunicator(communicator_end, self.db,
@@ -81,10 +82,11 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
 
         result_commands = communicator._QuestionCommunicator__executed_commands
         self.assertEqual(len(result_commands), 1)
-        self.assertIsInstance(result_commands[0], InsertCommand)
-        self.assertTrue(result_commands[0].is_executed)
-        self.assertIs(result_commands[0].variable, self.var_foo)
-        self.assertAlmostEqual(result_commands[0].timestamp, time.time())
+        command = result_commands.pop()
+        self.assertIsInstance(command, InsertCommand)
+        self.assertTrue(command.is_executed)
+        self.assertEqual(command.variable, self.var_foo)
+        self.assertAlmostEqual(command.timestamp, int(time.time()))
 
     def test_handling_2_answers_in_pipe(self):
         """
@@ -92,8 +94,8 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         in the database, in correct order.
         """
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
-        answer_1 = AnswerMessage(id=1, var=self.var_foo, value=1)
-        answer_2 = AnswerMessage(id=2, var=self.var_foo, value=2)
+        answer_1 = AnswerMessage(id_num=1, var=self.var_foo, value=1)
+        answer_2 = AnswerMessage(id_num=2, var=self.var_foo, value=2)
         testsuite_end.send(answer_1)
         testsuite_end.send(answer_2)
 
@@ -105,7 +107,7 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         result = self.db.get_rows_of_vars([self.var_foo])
         expected = {"foo": [1, 2]}
 
-        self.assertDictEqual(result, expected)
+        self.check_dicts_of_arrays_equal(expected, result)
 
         result_commands = communicator._QuestionCommunicator__executed_commands
         self.assertEqual(len(result_commands), 2)
@@ -121,8 +123,8 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         in-between the timesteps.
         """
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
-        answer_1 = AnswerMessage(id=1, var=self.var_foo, value=1)
-        answer_2 = AnswerMessage(id=2, var=self.var_foo, value=2)
+        answer_1 = AnswerMessage(id_num=1, var=self.var_foo, value=1)
+        answer_2 = AnswerMessage(id_num=2, var=self.var_foo, value=2)
 
         communicator = QuestionCommunicator(communicator_end, self.db,
                                             MockQuestionSchedule(set()))
@@ -135,8 +137,7 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         result = self.db.get_rows_of_vars([self.var_foo])
         expected = {"foo": [1, 2]}
 
-        self.assertDictEqual(result, expected)
-
+        self.check_dicts_of_arrays_equal(expected, result)
         result_commands = communicator._QuestionCommunicator__executed_commands
         self.assertEqual(len(result_commands), 2)
 
@@ -236,7 +237,7 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
 
         question_1 = Question("How are you?", self.var_foo)
         schedule = MockQuestionSchedule((
-            QuestionOccurrence({question_1}, 123)
+            QuestionOccurrence({question_1}, 123),
         ))
 
         communicator = QuestionCommunicator(
@@ -248,6 +249,12 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         self.assertTrue(testsuite_end.poll())
         testsuite_end.recv()  # Question from second timestep
         self.assertFalse(testsuite_end.poll())
+
+    def check_dicts_of_arrays_equal(self, expected: Dict[Any, Iterable],
+                                    result: Dict[Any, Iterable]):
+        for key in expected.keys():
+            self.assertIn(key, result.keys())
+            np.testing.assert_allclose(result[key], expected[key])
 
 
 if __name__ == "__main__":

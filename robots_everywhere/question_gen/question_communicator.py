@@ -41,7 +41,7 @@ class QuestionCommunicator:
         self.__pipe = pipe_to_gui
         self.__db = database
         self.__schedule = schedule
-        self.__executed_commands = {}
+        self.__executed_commands = set()
 
     def mainloop(self, sleep_time: float, max_num_steps: Number = float('inf')):
         step = 0
@@ -62,10 +62,10 @@ class QuestionCommunicator:
             for question in question_occurence.questions:
                 self.__send_question_to_gui(question, question_occurence.id)
 
-    def __send_question_to_gui(self, question: Question, id: int):
-        message = QuestionMessage(id, question.content, question.variable)
+    def __send_question_to_gui(self, question: Question, id_num: int):
+        message = QuestionMessage(id_num, text=question.content, var=question.variable)
         self.__pipe.send(message)
-        print(f"Send QuestionMessage to GUI with id {id}: {question.content}")
+        print(f"Send QuestionMessage to GUI with id {id_num}: {question.content}")
 
     def __handle_all_answers_in_pipe(self):
         while self.__pipe.poll():
@@ -76,6 +76,6 @@ class QuestionCommunicator:
                                     ans.id,
                                     ans.variable,
                                     ans.value,
-                                    time.time())
+                                    int(time.time()))
         new_command.execute()
         self.__executed_commands.add(new_command)
