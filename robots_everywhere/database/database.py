@@ -25,6 +25,7 @@ import time
 from typing import Any, Dict, Union, Optional, Sequence, Tuple
 import pandas as pd
 import numpy as np
+import uuid
 
 import robots_everywhere.settings as settings
 from robots_everywhere.settings import TYPE_TO_STR
@@ -196,7 +197,8 @@ def __create_table_for_var(conn: sqlite3.Connection, var: Variable):
     query = f"""
     CREATE TABLE {var.name} (
         value {value_storage_class} NOT NULL,
-        timestamp INT PRIMARY KEY
+        timestamp INT,
+        id INT NOT NULL
     );
     """
     conn.execute(query)
@@ -246,8 +248,8 @@ def insert_new_var_value(conn: sqlite3.Connection,
         raise ValueError(f"Type of [new_value] does not match variable")
 
     query = f"""
-    INSERT INTO {var.name} (value, timestamp)
-    VALUES (?, ?)
+    INSERT INTO {var.name} (value, timestamp, id)
+    VALUES (?, ?, ?)
     """
-    conn.execute(query, (new_value, timestamp))
+    conn.execute(query, (new_value, timestamp, time.time_ns()))
     conn.commit()
