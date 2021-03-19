@@ -4,7 +4,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>864</x>
+      <x>976</x>
       <y>208</y>
       <w>144</w>
       <h>88</h>
@@ -22,7 +22,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1128</x>
+      <x>1240</x>
       <y>344</y>
       <w>320</w>
       <h>104</h>
@@ -41,7 +41,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>552</x>
+      <x>664</x>
       <y>936</y>
       <w>384</w>
       <h>88</h>
@@ -59,7 +59,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>920</x>
+      <x>1032</x>
       <y>288</y>
       <w>224</w>
       <h>96</h>
@@ -72,7 +72,7 @@ m1=*
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>16</x>
+      <x>128</x>
       <y>1016</y>
       <w>392</w>
       <h>192</h>
@@ -98,7 +98,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
+      <x>672</x>
       <y>240</y>
       <w>96</w>
       <h>136</h>
@@ -119,7 +119,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>424</x>
+      <x>536</x>
       <y>320</y>
       <w>104</w>
       <h>96</h>
@@ -137,7 +137,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>632</x>
+      <x>744</x>
       <y>816</y>
       <w>184</w>
       <h>56</h>
@@ -152,7 +152,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>352</x>
+      <x>464</x>
       <y>816</y>
       <w>184</w>
       <h>88</h>
@@ -170,7 +170,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>528</x>
+      <x>640</x>
       <y>848</y>
       <w>120</w>
       <h>40</h>
@@ -183,7 +183,7 @@ m1=*
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1208</x>
+      <x>1320</x>
       <y>512</y>
       <w>192</w>
       <h>104</h>
@@ -202,7 +202,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1208</x>
+      <x>1320</x>
       <y>864</y>
       <w>192</w>
       <h>176</h>
@@ -227,7 +227,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1296</x>
+      <x>1408</x>
       <y>440</y>
       <w>32</w>
       <h>88</h>
@@ -239,7 +239,7 @@ m1=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1296</x>
+      <x>1408</x>
       <y>824</y>
       <w>24</w>
       <h>56</h>
@@ -250,7 +250,7 @@ m1=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>208</x>
+      <x>320</x>
       <y>240</y>
       <w>672</w>
       <h>792</h>
@@ -263,7 +263,7 @@ m1=*
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>216</x>
+      <x>328</x>
       <y>1200</y>
       <w>168</w>
       <h>88</h>
@@ -275,7 +275,7 @@ m1=*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>712</x>
+      <x>824</x>
       <y>864</y>
       <w>32</w>
       <h>88</h>
@@ -287,7 +287,7 @@ m1=*</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>944</x>
+      <x>1056</x>
       <y>1192</y>
       <w>328</w>
       <h>176</h>
@@ -312,19 +312,19 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>808</x>
+      <x>936</x>
       <y>1264</y>
-      <w>152</w>
+      <w>136</w>
       <h>32</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=1</panel_attributes>
-    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;150.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLPackage</id>
     <coordinates>
-      <x>1328</x>
+      <x>1440</x>
       <y>1640</y>
       <w>416</w>
       <h>184</h>
@@ -338,7 +338,7 @@ bg=gray</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1536</x>
+      <x>1648</x>
       <y>1720</y>
       <w>32</w>
       <h>32</h>
@@ -350,7 +350,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1072</x>
+      <x>1184</x>
       <y>1360</y>
       <w>72</w>
       <h>216</h>
@@ -364,7 +364,7 @@ fg=blue</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1088</x>
+      <x>1200</x>
       <y>440</y>
       <w>112</w>
       <h>768</h>
@@ -376,7 +376,7 @@ m1=1</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>784</x>
+      <x>896</x>
       <y>160</y>
       <w>280</w>
       <h>32</h>
@@ -388,7 +388,7 @@ bg=#f5df9a</panel_attributes>
   <element>
     <id>UMLPackage</id>
     <coordinates>
-      <x>1672</x>
+      <x>1784</x>
       <y>384</y>
       <w>736</w>
       <h>872</h>
@@ -402,7 +402,7 @@ fg=cyan</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1208</x>
+      <x>1320</x>
       <y>680</y>
       <w>192</w>
       <h>152</h>
@@ -425,7 +425,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1296</x>
+      <x>1408</x>
       <y>608</y>
       <w>24</w>
       <h>88</h>
@@ -436,7 +436,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>416</x>
+      <x>528</x>
       <y>0</y>
       <w>320</w>
       <h>24</h>
@@ -449,7 +449,7 @@ bg=red
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>416</x>
+      <x>528</x>
       <y>24</y>
       <w>320</w>
       <h>32</h>
@@ -463,7 +463,7 @@ bg=pink
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1752</x>
+      <x>1864</x>
       <y>984</y>
       <w>272</w>
       <h>88</h>
@@ -481,22 +481,20 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1168</x>
-      <y>1448</y>
-      <w>392</w>
-      <h>160</h>
+      <x>1304</x>
+      <y>1440</y>
+      <w>480</w>
+      <h>136</h>
     </coordinates>
-    <panel_attributes>We will probably need to use multiprocessing.
-Perhaps a 'Pipe' to send data between processes.
-Here it will be used to exchange Questions and Answers.
-The BackendQuestioner will be able to match a Question
-to its Answer via their ID.
-
-For commands such as undo or adding a variable
-we can make new classes. Then the BackendQuestioner
-can just extract stuff from the pipe,
-and check the type of the object (answer, new var, undo)
-to figure out what needs to be done with it.
+    <panel_attributes>Multiprocessing is used to run the question generation,
+the GUI and the output generation in parallel.
+Python's multiprocessing.Pipe is used to send data between processes.
+Here it will be used to exchange QuestionMessages, AnswerMessages
+and OutputMessages. 
+The QuestionCommunicator will be able to match a Question
+to its AnswerMessage via their ID. It will also store this
+ID in the corresponding InsertCommand, making it possible to undo
+a command given only the question or answer that it was derived from.
 style=autoresize
 bg=#f5df9a</panel_attributes>
     <additional_attributes/>
@@ -504,7 +502,7 @@ bg=#f5df9a</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>2152</x>
+      <x>2264</x>
       <y>768</y>
       <w>232</w>
       <h>96</h>
@@ -522,7 +520,7 @@ bg=#f5df9a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>2136</x>
+      <x>2248</x>
       <y>1080</y>
       <w>144</w>
       <h>48</h>
@@ -537,7 +535,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>2088</x>
+      <x>2200</x>
       <y>936</y>
       <w>288</w>
       <h>88</h>
@@ -556,7 +554,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2200</x>
+      <x>2312</x>
       <y>1016</y>
       <w>24</w>
       <h>80</h>
@@ -567,7 +565,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1944</x>
+      <x>2056</x>
       <y>864</y>
       <w>104</w>
       <h>136</h>
@@ -580,7 +578,7 @@ rules</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2016</x>
+      <x>2128</x>
       <y>1040</y>
       <w>136</w>
       <h>88</h>
@@ -593,7 +591,7 @@ generator</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>592</x>
+      <x>704</x>
       <y>1336</y>
       <w>224</w>
       <h>56</h>
@@ -608,7 +606,7 @@ bg=#f5df9a</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1112</x>
+      <x>1224</x>
       <y>1560</y>
       <w>48</w>
       <h>40</h>
@@ -622,7 +620,7 @@ style=autoresize
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1128</x>
+      <x>1240</x>
       <y>1592</y>
       <w>424</w>
       <h>168</h>
@@ -636,7 +634,7 @@ fg=blue</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1856</x>
+      <x>1968</x>
       <y>1544</y>
       <w>40</w>
       <h>40</h>
@@ -650,7 +648,7 @@ style=autoresize
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1560</x>
+      <x>1672</x>
       <y>1576</y>
       <w>336</w>
       <h>184</h>
@@ -664,7 +662,7 @@ fg=blue</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1864</x>
+      <x>1976</x>
       <y>1064</y>
       <w>32</w>
       <h>496</h>
@@ -678,7 +676,7 @@ fg=blue</panel_attributes>
   <element>
     <id>UMLPackage</id>
     <coordinates>
-      <x>0</x>
+      <x>112</x>
       <y>648</y>
       <w>1616</w>
       <h>784</h>
@@ -692,7 +690,7 @@ fg=cyan</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1672</x>
+      <x>1784</x>
       <y>272</y>
       <w>440</w>
       <h>80</h>
@@ -709,7 +707,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1832</x>
+      <x>1944</x>
       <y>768</y>
       <w>296</w>
       <h>104</h>
@@ -728,7 +726,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1848</x>
+      <x>1960</x>
       <y>424</y>
       <w>312</w>
       <h>112</h>
@@ -748,7 +746,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1800</x>
+      <x>1912</x>
       <y>600</y>
       <w>192</w>
       <h>64</h>
@@ -764,7 +762,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>2008</x>
+      <x>2120</x>
       <y>600</y>
       <w>192</w>
       <h>64</h>
@@ -780,7 +778,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1880</x>
+      <x>1992</x>
       <y>528</y>
       <w>136</w>
       <h>88</h>
@@ -791,7 +789,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1992</x>
+      <x>2104</x>
       <y>544</y>
       <w>128</w>
       <h>72</h>
@@ -802,7 +800,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1856</x>
+      <x>1968</x>
       <y>656</y>
       <w>136</w>
       <h>128</h>
@@ -814,7 +812,7 @@ m1=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2000</x>
+      <x>2112</x>
       <y>656</y>
       <w>128</w>
       <h>128</h>
@@ -826,7 +824,7 @@ m1=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1776</x>
+      <x>1888</x>
       <y>344</y>
       <w>88</w>
       <h>656</h>
@@ -837,9 +835,9 @@ m1=1</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>368</x>
+      <x>480</x>
       <y>1216</y>
-      <w>448</w>
+      <w>464</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>*QuestionSchedule*
@@ -847,14 +845,14 @@ m1=1</panel_attributes>
 - question_sets: Set[ReoccuringQuestionSet]
 - previous_timestamp: float
 --
-+ get_new_occurences(current_time: float): Set[QuestionOccurence]
++ get_new_occurences(current_time: float): Tuple[QuestionOccurence]
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>816</x>
+      <x>928</x>
       <y>1016</y>
       <w>144</w>
       <h>192</h>
@@ -866,7 +864,7 @@ m1=1</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>2208</x>
+      <x>2320</x>
       <y>600</y>
       <w>192</w>
       <h>64</h>
@@ -882,7 +880,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2096</x>
+      <x>2208</x>
       <y>544</y>
       <w>224</w>
       <h>72</h>
@@ -893,7 +891,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2048</x>
+      <x>2160</x>
       <y>656</y>
       <w>280</w>
       <h>128</h>
@@ -905,8 +903,8 @@ m1=1</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>720</x>
-      <y>1728</y>
+      <x>728</x>
+      <y>1600</y>
       <w>176</w>
       <h>64</h>
     </coordinates>
@@ -921,7 +919,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>752</x>
+      <x>864</x>
       <y>1472</y>
       <w>112</w>
       <h>80</h>
@@ -938,7 +936,7 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>744</x>
+      <x>944</x>
       <y>1600</y>
       <w>128</w>
       <h>64</h>
@@ -954,8 +952,8 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>688</x>
-      <y>1840</y>
+      <x>736</x>
+      <y>1736</y>
       <w>112</w>
       <h>32</h>
     </coordinates>
@@ -966,57 +964,72 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>816</x>
-      <y>1840</y>
-      <w>104</w>
-      <h>32</h>
+      <x>952</x>
+      <y>1736</y>
+      <w>136</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>*AnswerMessage*
+--
+- value: Any
+--
++ get_value(): Any
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>800</x>
+      <x>936</x>
       <y>1544</y>
-      <w>24</w>
+      <w>40</w>
       <h>72</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+    <additional_attributes>10.0;10.0;30.0;70.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>800</x>
+      <x>856</x>
+      <y>1544</y>
+      <w>48</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>40.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>792</x>
       <y>1656</y>
       <w>24</w>
-      <h>88</h>
+      <h>96</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>744</x>
-      <y>1784</y>
-      <w>64</w>
-      <h>72</h>
+      <x>792</x>
+      <y>1656</y>
+      <w>232</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>60.0;10.0;10.0;70.0</additional_attributes>
+    <additional_attributes>270.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>816</x>
-      <y>1784</y>
-      <w>64</w>
-      <h>72</h>
+      <x>1032</x>
+      <y>1656</y>
+      <w>24</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;60.0;70.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
   </element>
 </diagram>
