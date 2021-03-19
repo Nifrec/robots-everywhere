@@ -70,13 +70,13 @@ class QuestionMessage(TextMessage, VariableMessage):
 
 class AnswerMessage(VariableMessage):
     
-    def __init__(self, id: int, var: Variable, ans: Any):
+    def __init__(self, id: int, var: Variable, value: Any):
         super().__init__(id, var)
-        self.__ans = ans
+        self.__value = value
     
     @property
-    def ans(self) -> Any:
-        return self.__ans
+    def value(self) -> Any:
+        return self.__value
 
 class OutputMessage(TextMessage):
     """
