@@ -10,3 +10,8 @@ pip install -e .
 ```
 
 (Alternatively, replace '`.`' with the path to the location of `robots-everywhere`.)
+
+## Required libraries:
+
+* `kivy`
+* `numpy`
