@@ -19,20 +19,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Class that regulates the occurrence of questions
 """
 
+from typing import Set
 from robots_everywhere.question_gen.question import Question
-#import enum
-
-
-#class QuestionStatus(enum.Enum):
-#    unanswered = 0
-#    answered = 1
-#    snoozed = 2
-#    cancelled = 3
 
 
 class QuestionOccurrence:
 
-    def __init__(self, questions: Question, id: int):
+    def __init__(self, questions: Set[Question], id: int):
         self.__id = id
         self.__questions = questions
 
