@@ -31,7 +31,7 @@ class QuestionSchedule:
     def __init__(self, question_sets, prev_timestamp = time.time()):
         self.__prev_timestamp = prev_timestamp
 
-    def get_new_occurences(self,
+    def get_new_occurrences(self,
                            current_time: float = None
                            ) -> Set[QuestionOccurrence]:
         pass
