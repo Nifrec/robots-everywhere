@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Testcases for class QuestionCommunicator.
 """
 from robots_everywhere.question_gen.question import Question
-from typing import Set
+from typing import Iterable, Set
 import unittest
 import multiprocessing
 import time
@@ -35,16 +35,17 @@ from robots_everywhere.database.test_database.test_database import \
     remove_database, TEST_DB_NAME, DatabaseWriter
 from robots_everywhere.database.command import InsertCommand
 
+
 class MockQuestionSchedule(QuestionSchedule):
     """
     Mock implementation that always returns the same output
     to get_new_occurences().
     """
 
-    def __init__(self, output: Set[QuestionOccurrence]):
+    def __init__(self, output: Iterable[QuestionOccurrence]):
         self.output = output
 
-    def get_new_occurences(self, _) -> Set[QuestionOccurrence]:
+    def get_new_occurences(self, _) -> Iterable[QuestionOccurrence]:
         return self.output
 
 
@@ -122,7 +123,6 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
         answer_1 = AnswerMessage(id=1, var=self.var_foo, value=1)
         answer_2 = AnswerMessage(id=2, var=self.var_foo, value=2)
-        
 
         communicator = QuestionCommunicator(communicator_end, self.db,
                                             MockQuestionSchedule(set()))
@@ -152,9 +152,12 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
 
         question = Question("How are you?", self.var_foo)
-        schedule = MockQuestionSchedule({QuestionOccurrence(question, 123)})
+        schedule = MockQuestionSchedule(
+            (QuestionOccurrence({question}, 123), )
+        )
 
-        communicator = QuestionCommunicator(communicator_end, self.db, schedule)
+        communicator = QuestionCommunicator(
+            communicator_end, self.db, schedule)
         communicator.mainloop(0, 1)
 
         self.assertTrue(testsuite_end.poll())
@@ -169,20 +172,53 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         """
         Run one timestep, multiple questions given,
         multiple questions in pipe expected.
+
+        Case with questions in different occurrences.
         """
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
 
         question_1 = Question("How are you?", self.var_foo)
         question_2 = Question("Walk to Hell!", self.var_foo)
-        schedule = MockQuestionSchedule(
-            {QuestionOccurrence(question_1, 123),
-             QuestionOccurrence(question_2, 666)})
+        schedule = MockQuestionSchedule((
+            QuestionOccurrence({question_1}, 123),
+            QuestionOccurrence({question_2}, 666)
+        ))
 
-        communicator = QuestionCommunicator(communicator_end, self.db, schedule)
+        communicator = QuestionCommunicator(
+            communicator_end, self.db, schedule)
         communicator.mainloop(0, 1)
 
         self.assertTrue(testsuite_end.poll())
-        testsuite_end.recv() # First output already tested in test above.
+        testsuite_end.recv()  # First output already tested in test above.
+        self.assertFalse(testsuite_end.poll())
+        result = testsuite_end.recv()
+        self.assertIsInstance(result, QuestionMessage)
+        self.assertEqual(result.id, 666)
+        self.assertEqual(result.text, "Walk to Hell!")
+        self.assertEqual(result.variable, self.var_foo)
+        self.assertFalse(testsuite_end.poll())
+
+    def test_putting_questions_in_pipe_mult_questions(self):
+        """
+        Run one timestep, multiple questions given,
+        multiple questions in pipe expected.
+
+        Case with multiple questions in *one single* occurrence.
+        """
+        communicator_end, testsuite_end = multiprocessing.Pipe(True)
+
+        question_1 = Question("How are you?", self.var_foo)
+        question_2 = Question("Walk to Hell!", self.var_foo)
+        schedule = MockQuestionSchedule((
+            QuestionOccurrence({question_1, question_2}, 123),
+        ))
+
+        communicator = QuestionCommunicator(
+            communicator_end, self.db, schedule)
+        communicator.mainloop(0, 1)
+
+        self.assertTrue(testsuite_end.poll())
+        testsuite_end.recv()  # First output already tested in test above.
         self.assertFalse(testsuite_end.poll())
         result = testsuite_end.recv()
         self.assertIsInstance(result, QuestionMessage)
@@ -199,17 +235,20 @@ class QuestionCommunicatorTestCase(unittest.TestCase):
         communicator_end, testsuite_end = multiprocessing.Pipe(True)
 
         question_1 = Question("How are you?", self.var_foo)
-        schedule = MockQuestionSchedule(
-            {QuestionOccurrence(question_1, 123)})
+        schedule = MockQuestionSchedule((
+            QuestionOccurrence({question_1}, 123)
+        ))
 
-        communicator = QuestionCommunicator(communicator_end, self.db, schedule)
+        communicator = QuestionCommunicator(
+            communicator_end, self.db, schedule)
         communicator.mainloop(0, 2)
 
         self.assertTrue(testsuite_end.poll())
-        testsuite_end.recv() # Question from first timestep
+        testsuite_end.recv()  # Question from first timestep
         self.assertTrue(testsuite_end.poll())
-        testsuite_end.recv() # Question from second timestep
+        testsuite_end.recv()  # Question from second timestep
         self.assertFalse(testsuite_end.poll())
+
 
 if __name__ == "__main__":
     unittest.main()
