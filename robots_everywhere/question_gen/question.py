@@ -46,3 +46,6 @@ class Question:
             return False
         else:
             return other.content == self.content and other.variable == self.variable
+
+    def __hash__(self):
+        return hash(self.__content) + hash(self.__variable.name)
