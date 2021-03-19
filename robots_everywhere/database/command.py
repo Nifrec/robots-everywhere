@@ -28,7 +28,7 @@ from robots_everywhere.database.database import DatabaseWriter, Variable
 class DBCommand(abc.ABC):
 
     def __init__(self, db_writer: DatabaseWriter):
-        self.__db_writer = db_writer
+        self._db_writer = db_writer
         self.__is_executed = False
 
     @property
@@ -69,7 +69,6 @@ class InsertCommand(ReversibleCommand):
                  value: Any,
                  timestamp: Optional[int] = None):
         super().__init__(db_writer, id)
-        self.__db_writer = db_writer
         self.__var = var
         self.__value = value
         if timestamp is not None:
@@ -77,9 +76,17 @@ class InsertCommand(ReversibleCommand):
         else:
             self.__timestamp = round(time.time())
 
+    @property
+    def variable(self) -> Variable:
+        return self.__var
+
+    @property
+    def timestamp(self) -> float:
+        return self.__timestamp
+
     def execute(self) -> None:
         super().execute()
-        self.__db_writer.insert_new_value_of_var(self.__var,
+        self._db_writer.insert_new_value_of_var(self.__var,
                                                  self.__value,
                                                  self.__timestamp)
 
