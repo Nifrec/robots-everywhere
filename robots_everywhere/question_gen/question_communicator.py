@@ -19,11 +19,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Class encapsulating the mainloop of the question-generating and
 answer-saving process.
 """
+from robots_everywhere.question_gen.question import Question
 import time
 from multiprocessing.connection import Connection
 from typing import Iterable, Sequence, Tuple
-import random
-import uuid
 from numbers import Number
 
 from robots_everywhere.message import QuestionMessage, AnswerMessage
@@ -31,6 +30,8 @@ from robots_everywhere.database.database import DatabaseReader
 from robots_everywhere.output.rules import Rule
 from robots_everywhere.database.command import InsertCommand
 from robots_everywhere.question_gen.question_schedule import QuestionSchedule
+
+
 class QuestionCommunicator:
 
     def __init__(self,
@@ -39,6 +40,8 @@ class QuestionCommunicator:
                  schedule: QuestionSchedule):
         self.__pipe = pipe_to_gui
         self.__db = database
+        self.__schedule = schedule
+        self.__executed_commands = {}
 
     def mainloop(self, sleep_time: float, max_num_steps: Number = float('inf')):
         step = 0
@@ -46,8 +49,33 @@ class QuestionCommunicator:
             step += 1
             time.sleep(sleep_time)
 
-    def store_answer(ans: AnswerMessage):
-        pass
+            self.__send_all_new_questions()
+            self.__handle_all_answers_in_pipe()
 
 
+    def __send_all_new_questions(self):
+        # Although probably rarely needed, it is possible that multiple
+        # ReoccurringQuestionSets in the schedule fire at the same time,
+        # and hence multiple QuestionOccurrences appear at the same time.
+        new_questions = self.__schedule.get_new_occurrences(time.time())
+        for question_occurence in new_questions:
+            for question in question_occurence.questions:
+                self.__send_question_to_gui(question, question_occurence.id)
 
+    def __send_question_to_gui(self, question: Question, id: int):
+        message = QuestionMessage(id, question.content, question.variable)
+        self.__pipe.send(message)
+        print(f"Send QuestionMessage to GUI with id {id}: {question.content}")
+
+    def __handle_all_answers_in_pipe(self):
+        while self.__pipe.poll():
+            self.__store_answer(self.__pipe.recv())
+
+    def __store_answer(self, ans: AnswerMessage):
+        new_command = InsertCommand(self.__db,
+                                    ans.id,
+                                    ans.variable,
+                                    ans.value,
+                                    time.time())
+        new_command.execute()
+        self.__executed_commands.add(new_command)
