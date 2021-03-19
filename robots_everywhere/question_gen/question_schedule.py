@@ -19,19 +19,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 Class for organizing a sorf of 'calendar' of sets of recurring questions.
 """
 import time
-from typing import Set
+from typing import Iterable, Tuple
+import warnings
+
 
 from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
 
+class ReoccuringQuestionSet:
+
+    def __init__(self) -> None:
+        warnings.warn("Using placeholder ReoccuringQuestionSet")
+
+    def generate_questions(self):
+        return set()
 
 class QuestionSchedule:
-    # Placeholder!!!
-    pass
 
-    def __init__(self, question_sets, prev_timestamp = time.time()):
-        self.__prev_timestamp = prev_timestamp
+    def __init__(self, question_sets: Iterable[ReoccuringQuestionSet]):
+        warnings.warn("Using unhinished QuestionSchedule")
+        self.__question_sets = tuple(question_sets)
 
     def get_new_occurrences(self,
-                           current_time: float = None
-                           ) -> Set[QuestionOccurrence]:
-        pass
+                            current_time: float = None
+                            ) -> Tuple[QuestionOccurrence]:
+        if current_time is None:
+            current_time = time.time()
+        return tuple(question_set.generate_questions(current_time)
+                    for question_set in self.__question_sets)
