@@ -72,6 +72,7 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
     output_proc = Process(target=start_up_output_generator,
                           args=(output_to_gui, rules, db))
 
+    questions_to_gui.send(["Hi there!", "text_box"])
     gui_proc.start()
     questions_proc.start()
     output_proc.start()

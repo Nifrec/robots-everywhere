@@ -46,33 +46,37 @@ class MainScreen(Screen):
     progressbar = ObjectProperty(None)
     level_display = ObjectProperty(None)
     send_button = ObjectProperty(None)
-    conversation_counter = NumericProperty(0)
+    message_type = "text_box"
     level = NumericProperty(1)
     background_image = StringProperty("")
 
-
     def add_text(self):
+        # ensure that the right type of information is read from previous question
+        if self.message_type == 'text_box':
+            self.chat_window.send_message(self.user_input.getText())
+            # send response trough output pipe
+            ci.output_connection.send(self.user_input.getText())
+            self.user_input.removeText()
+        if self.message_type == 'slider':
+            slider_value = self.user_input.getSliderValue()
+            anim = Animation(happy=slider_value / 10)
+            anim.start(self.face)
+            self.chat_window.send_message(str(round(slider_value)))
+            # send response trough output pipe
+            ci.output_connection.send(slider_value)
+        if self.message_type == 'multiple_choice':
+            self.chat_window.send_message(self.user_input.getMS())
+            # send response trough output pipe
+            ci.output_connection.send(self.user_input.getMS())
 
-        if not self.conversation_counter == 0:
-            # ensure that the right type of information is read from previous question
-            if conversation[self.conversation_counter-1][0] == 'text_box':
-                if self.conversation_counter == 1:
-                    user_info.user_name = self.user_input.getText()
-                self.chat_window.send_message(self.user_input.getText())
-                self.user_input.removeText()
-            if conversation[self.conversation_counter-1][0] == 'slider':
-                slider_value = self.user_input.getSliderValue()
-                anim = Animation(happy=slider_value/10)
-                anim.start(self.face)
-                self.chat_window.send_message(str(round(slider_value)))
-            if conversation[self.conversation_counter-1][0] == 'multiple_choice':
-                self.chat_window.send_message(self.user_input.getMS())
         # disable send button until animation is done
         self.send_button.disabled = True
+
         # progressbar animation
         anim = Animation(progress=self.progressbar.progress + 1)
         anim.bind(on_complete=self.enable_button)
         anim.start(self.progressbar)
+
         # The progressbar is filled up and a new level has ben achieved
         if self.progressbar.progress >= self.progressbar.progress_full:
             self.level += 1
@@ -85,18 +89,16 @@ class MainScreen(Screen):
             popup = NewLevelPopup()
             popup.current_level = self.level
             popup.open()
-        # AI responds
-        self.add_response()
 
-    def add_response(self):
-        if conversation[self.conversation_counter][0] == 'text_box':
+    def setup_message(self, message):
+        if message[1] == 'text_box':
             self.user_input.addTextBox()
-        if conversation[self.conversation_counter][0] == 'slider':
+        elif message[1] == 'slider':
             self.user_input.addSlider()
-        if conversation[self.conversation_counter][0] == 'multiple_choice':
+        elif message[1] == 'multiple_choice':
             self.user_input.addMS()
-        self.chat_window.send_response()
-        self.conversation_counter += 1
+        self.message_type = message[1]
+        self.chat_window.send_message_computer(message[0])
 
     def blink(self, ms):
         anim = Animation(blink=0, duration=.1) + Animation(blink=1, duration=.1)
@@ -208,14 +210,11 @@ class ChatWindow(BoxLayout):
         self.add_widget(text_row)
         self.parent.scroll_to(text_row)
 
-    def send_response(self):
-        for message in conversation[self.conversation_counter][1:]:
-            if self.conversation_counter == 1:
-                message.fillName()
-            self.add_widget(message)
-            self.parent.scroll_to(message)
-        self.conversation_counter += 1
-
+    def send_message_computer(self, message):
+        text_message = TextMessage()
+        text_message.add_text(message)
+        self.add_widget(text_message)
+        self.parent.scroll_to(text_message)
 
 class TextRow(BoxLayout):
     pass
@@ -262,31 +261,32 @@ class Manager(ScreenManager):
     main_screen = ObjectProperty(None)
 
     def start(self, dt):
-        text_1 = TextMessage()
-        text_1.add_text("Hi there! My name is Motus! What is your name?")
-        dynamic_elements.append(text_1)
-        conversation[0] = ['text_box', text_1]
-        text_2 = TextMessage()
-        text_2.add_text("Nice to meet you [NAME]! What do you think of this awesome picture?")
-        dynamic_elements.append(text_2)
-        image = ImageMessage()
-        conversation[1] = ['text_box', text_2, image]
-        text_3 = TextMessage()
-        text_3.add_text("I think so to :)")
-        dynamic_elements.append(text_3)
-        text_4 = TextMessage()
-        text_4.add_text("How would you rate you day uptill now?")
-        conversation[2] = ['slider', text_3, text_4]
-        text_5 = TextMessage()
-        text_5.add_text("Would you recommend this app?")
-        conversation[3] = ['multiple_choice', text_5]
-        text_6 = TextMessage()
-        text_6.add_text("okkiii byeeee")
-        conversation[4] = ['text_box', text_6]
-        for i in range(4, len(conversation) - 1):
-            text = TextMessage()
-            conversation[i] = ['text_box', text]
-        self.main_screen.add_response()
+        pass
+        # text_1 = TextMessage()
+        # text_1.add_text("Hi there! My name is Motus! What is your name?")
+        # dynamic_elements.append(text_1)
+        # conversation[0] = ['text_box', text_1]
+        # text_2 = TextMessage()
+        # text_2.add_text("Nice to meet you [NAME]! What do you think of this awesome picture?")
+        # dynamic_elements.append(text_2)
+        # image = ImageMessage()
+        # conversation[1] = ['text_box', text_2, image]
+        # text_3 = TextMessage()
+        # text_3.add_text("I think so to :)")
+        # dynamic_elements.append(text_3)
+        # text_4 = TextMessage()
+        # text_4.add_text("How would you rate you day uptill now?")
+        # conversation[2] = ['slider', text_3, text_4]
+        # text_5 = TextMessage()
+        # text_5.add_text("Would you recommend this app?")
+        # conversation[3] = ['multiple_choice', text_5]
+        # text_6 = TextMessage()
+        # text_6.add_text("okkiii byeeee")
+        # conversation[4] = ['text_box', text_6]
+        # for i in range(4, len(conversation) - 1):
+        #     text = TextMessage()
+        #     conversation[i] = ['text_box', text]
+        # self.main_screen.add_response()
 
 
 class MotiFactApp(App):
@@ -320,8 +320,11 @@ class MotiFactApp(App):
         ci.output_connection = conn_to_output
 
     def retrieve_questions(self, dt):
-        print("crazy connection: ")
-        # print(ci.question_connection.recv())
+        print("checking for incoming messages... ")
+        if ci.question_connection.poll():
+            message = ci.question_connection.recv()
+            print(message)
+            self.main_builder.main_screen.setup_message(message)
 
     def build(self):
         self.main_builder = Builder.load_file(MAIN_KV_FILE)
@@ -329,7 +332,7 @@ class MotiFactApp(App):
         Clock.schedule_interval(self.main_builder.main_screen.blink, 5)
         Clock.schedule_interval(self.main_builder.main_screen.bounce, 4)
         Clock.schedule_interval(self.main_builder.main_screen.follow_mouse, .05)
-        Clock.schedule_interval(self.retrieve_questions, 10)
+        Clock.schedule_interval(self.retrieve_questions, 1)
         return self.main_builder
 
 
