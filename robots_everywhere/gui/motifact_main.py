@@ -1,6 +1,6 @@
 import math
 import time
-
+from multiprocessing.connection import Connection
 
 import kivy
 from kivy.animation import Animation
@@ -26,6 +26,7 @@ from kivy.uix.widget import Widget
 import os
 import robots_everywhere.gui.user_info as user_info
 import robots_everywhere.settings as settings
+import robots_everywhere.gui.connection_info as ci
 
 MAIN_KV_FILE = os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere",
                             "gui", "motifact_main.kv")
@@ -33,9 +34,10 @@ kivy.require('2.0.0')
 Window.size = (600, 800)
 
 conversation = [None] * 100
-level_backgrounds = [' ', 'graphics/nature.jpg', 'graphics/desert.jpg', 'graphics/city.jpg']
+level_backgrounds = [' ', os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere", "gui", "graphics", "nature.jpg"),
+                     os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere", "gui", "graphics", "desert.jpg"),
+                     os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere", "gui", "graphics", "city.jpg")]
 dynamic_elements = []
-
 
 class MainScreen(Screen):
     chat_window = ObjectProperty(None)
@@ -313,6 +315,13 @@ class MotiFactApp(App):
         for widget in dynamic_elements:
             widget.theme_color = self.theme_color
 
+    def setup_connection(self, conn_to_questions: Connection, conn_to_output: Connection):
+        ci.question_connection = conn_to_questions
+        ci.output_connection = conn_to_output
+
+    def retrieve_questions(self, dt):
+        print("crazy connection: ")
+        # print(ci.question_connection.recv())
 
     def build(self):
         self.main_builder = Builder.load_file(MAIN_KV_FILE)
@@ -320,6 +329,7 @@ class MotiFactApp(App):
         Clock.schedule_interval(self.main_builder.main_screen.blink, 5)
         Clock.schedule_interval(self.main_builder.main_screen.bounce, 4)
         Clock.schedule_interval(self.main_builder.main_screen.follow_mouse, .05)
+        Clock.schedule_interval(self.retrieve_questions, 10)
         return self.main_builder
 
 

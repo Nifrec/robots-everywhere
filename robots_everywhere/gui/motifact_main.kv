@@ -21,6 +21,8 @@ Manager:
 #255/255, 183/255, 3/255
 
 #:import math math
+#:import os os
+#:import main_settings robots_everywhere.settings
 #:set color_blue 33/255, 158/255, 188/255
 #:set color_yellow 255/255, 183/255, 3/255
 #:set color_light_blue 142/255, 202/255, 230/255
@@ -65,7 +67,7 @@ Manager:
                         app.root.transition.direction = "right"
 
                     Image:
-                        source: 'graphics/settings.png'
+                        source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","settings.png")
                         y: self.parent.y
                         x: self.parent.x
                         size: (self.parent.width, self.parent.height)
@@ -153,7 +155,7 @@ Manager:
                         app.root.transition.direction = "left"
 
                     Image:
-                        source: 'graphics/profile_2.png'
+                        source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","profile_2.png")
                         y: self.parent.y
                         x: self.parent.x
                         size: (self.parent.width, self.parent.height)
@@ -170,9 +172,9 @@ Manager:
             mouse_angle_left: 0
             mouse_angle_right: 0
             normal_color: 33/255, 158/255, 188/255, 0
-            body: 'graphics/body_none.png'
-            moustache: 'graphics/body_none.png'
-            hat: 'graphics/body_none.png'
+            body: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_none.png")
+            moustache: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_none.png")
+            hat: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_none.png")
             offset: 5
             offsety: 5
 
@@ -381,7 +383,7 @@ Manager:
         RoundedRectangle:
             size: self.size
             pos: self.pos
-            source: 'graphics/storm_trooper.jpg'
+            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","storm_trooper.jpg")
 
 <NewLevelPopup>:
     title: ""
@@ -454,7 +456,7 @@ Manager:
                     app.root.transition.direction = "right"
 
                 Image:
-                    source: 'graphics/profile_2.png'
+                    source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","profile_2.png")
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -476,7 +478,7 @@ Manager:
                     app.root.transition.direction = "left"
 
                 Image:
-                    source: 'graphics/home.png'
+                    source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","home.png")
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -594,13 +596,13 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_background("graphics/nature.jpg")
+                        app.change_background(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","nature.jpg"))
 
                     canvas.before:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/nature.jpg"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","nature.jpg")
 
 
 
@@ -611,13 +613,13 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_background("graphics/desert.jpg")
+                        app.change_background(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","desert.jpg"))
 
                     canvas.before:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/desert.jpg"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","desert.jpg")
 
 
                 Button:
@@ -627,13 +629,13 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal:
                     on_release:
-                        app.change_background("graphics/city.jpg")
+                        app.change_background(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","city.jpg"))
 
                     canvas.before:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/city.jpg"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","city.jpg")
                         Color:
                             rgba: 0.5, 0.5, 0.5, 0.8
                         RoundedRectangle:
@@ -660,7 +662,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_body("graphics/body_triangle_line.png")
+                        app.change_body(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_triangle_line.png"))
 
                     canvas.before:
                         Color:
@@ -668,7 +670,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/body_triangle_line.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_triangle_line.png")
 
 
 
@@ -679,7 +681,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_body("graphics/body_square_line.png")
+                        app.change_body(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_square_line.png"))
 
                     canvas.before:
                         Color:
@@ -687,7 +689,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/body_square_line.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_square_line.png")
 
 
                 Button:
@@ -697,7 +699,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_body("graphics/body_circle_line.png")
+                        app.change_body(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_circle_line.png"))
 
                     canvas.before:
                         Color:
@@ -705,7 +707,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/body_circle_line.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","body_circle_line.png")
 
             Label:
                 text: 'Moustache:'
@@ -727,7 +729,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_moustache("graphics/moustache_1.png")
+                        app.change_moustache(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_1.png"))
 
                     canvas.before:
                         Color:
@@ -740,7 +742,7 @@ Manager:
                         RoundedRectangle:
                             size: (self.width - 4, self.height/2)
                             pos: (self.x + 2, self.y + self.height/4)
-                            source: "graphics/moustache_1.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_1.png")
 
 
 
@@ -751,7 +753,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_moustache("graphics/moustache_2.png")
+                        app.change_moustache(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_2.png"))
 
                     canvas.before:
                         Color:
@@ -764,7 +766,7 @@ Manager:
                         RoundedRectangle:
                             size: (self.width - 4, self.height/2)
                             pos: (self.x + 2, self.y + self.height/4)
-                            source: "graphics/moustache_2.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_2.png")
 
 
                 Button:
@@ -774,7 +776,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_moustache("graphics/moustache_4.png")
+                        app.change_moustache(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_4.png"))
 
                     canvas.before:
                         Color:
@@ -787,7 +789,7 @@ Manager:
                         RoundedRectangle:
                             size: (self.width - 4, self.height/2)
                             pos: (self.x + 2, self.y + self.height/4)
-                            source: "graphics/moustache_4_lined.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","moustache_4.png")
             Label:
                 text: 'Body type:'
                 color: root.theme_color
@@ -808,7 +810,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_hat("graphics/hat_1.png")
+                        app.change_hat(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_1.png"))
 
                     canvas.before:
                         Color:
@@ -816,7 +818,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/hat_1.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_1.png")
 
 
 
@@ -827,7 +829,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_hat("graphics/hat_2.png")
+                        app.change_hat(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_2.png"))
 
                     canvas.before:
                         Color:
@@ -835,7 +837,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/hat_2.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_2.png")
 
 
                 Button:
@@ -845,7 +847,7 @@ Manager:
                     background_color: 1, 1, 1, 0
                     background_normal: ''
                     on_release:
-                        app.change_hat("graphics/hat_5.png")
+                        app.change_hat(os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_5.png"))
 
                     canvas.before:
                         Color:
@@ -853,7 +855,7 @@ Manager:
                         RoundedRectangle:
                             size: self.size
                             pos: self.pos
-                            source: "graphics/hat_5.png"
+                            source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","hat_5.png")
 
             Label:
                 text: "Daily question maximum:"
@@ -905,7 +907,7 @@ Manager:
                     app.root.transition.direction = "right"
 
                 Image:
-                    source: 'graphics/home.png'
+                    source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","home.png")
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -927,7 +929,7 @@ Manager:
                     app.root.transition.direction = "left"
 
                 Image:
-                    source: 'graphics/settings.png'
+                    source: os.path.join(main_settings.PROJECT_ROOT_DIR, "robots_everywhere","gui","graphics","settings.png")
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)

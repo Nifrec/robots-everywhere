@@ -78,6 +78,7 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
 
 
 def start_up_gui(conn_to_questions: Connection, conn_to_output: Connection):
+    MotiFactApp().setup_connection(conn_to_questions, conn_to_output)
     MotiFactApp().run()
 
 
