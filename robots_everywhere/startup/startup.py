@@ -27,7 +27,7 @@ from robots_everywhere.output.rules import Rule
 from robots_everywhere.database.database import DatabaseReader, DatabaseWriter
 import robots_everywhere.settings as settings
 from robots_everywhere.startup.rule_loading import read_rules_from_file, read_vars_form_file
-# from robots_everywhere.gui.motifact_main import MotiFactApp
+from robots_everywhere.gui.motifact_main import MotiFactApp
 
 def start_up():
 
@@ -78,8 +78,7 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
 
 
 def start_up_gui(conn_to_questions: Connection, conn_to_output: Connection):
-    # MotiFactApp().run()
-    pass
+    MotiFactApp().run()
 
 
 def start_up_questions(conn_to_gui: Connection):

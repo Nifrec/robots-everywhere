@@ -65,7 +65,7 @@ Manager:
                         app.root.transition.direction = "right"
 
                     Image:
-                        source: 'settings.png'
+                        source: 'graphics/settings.png'
                         y: self.parent.y
                         x: self.parent.x
                         size: (self.parent.width, self.parent.height)
@@ -153,7 +153,7 @@ Manager:
                         app.root.transition.direction = "left"
 
                     Image:
-                        source: 'profile_2.png'
+                        source: 'graphics/profile_2.png'
                         y: self.parent.y
                         x: self.parent.x
                         size: (self.parent.width, self.parent.height)
@@ -169,40 +169,73 @@ Manager:
             center_both_y: self.y + self.height/2 + 50
             mouse_angle_left: 0
             mouse_angle_right: 0
-            background_image: ''
-            normal_color: 33/255, 158/255, 188/255
+            normal_color: 33/255, 158/255, 188/255, 0
+            body: 'graphics/body_none.png'
+            moustache: 'graphics/body_none.png'
+            hat: 'graphics/body_none.png'
+            offset: 5
+            offsety: 5
 
             canvas.before:
+                #background
                 Color:
                     rgb: self.normal_color
                 RoundedRectangle:
                     pos: (self.x, self.y + 10)
                     size: (self.width, self.height - 20)
-                    source: self.background_image
+                    source: root.background_image
+                #shadow
+                Color:
+                    rgb: (color_blue[0] - 50/255, color_blue[1] - 50/255, color_blue[2] -50/255)
+                Ellipse:
+                    pos: (self.x + self.width / 2 - 150 + self.offset/2, self.y + 10)
+                    size: (300 - self.offset, 50)
+                #body
+                Color:
+                    rgb: root.theme_color
+                Rectangle:
+                    pos: (self.x + self.width/3 - 25 + self.offsety/2, self.y + 25 + self.offset + self.offsety/2)
+                    size: (self.width/3 + 50 - self.offsety, self.width/3 + 50 - self.offsety)
+                    source: self.body
                 #eyes
                 Color:
                     rgb: color_dark_blue
                 Ellipse:
                     size: (100, 100 * self.blink)
-                    pos: (self.x + self.width/3 - 50, self.y + self.height/2)
+                    pos: (self.x + self.width/3 - 50, self.y + self.height/2 + self.offset)
                 Ellipse:
                     size: (100, 100 * self.blink)
-                    pos: (self.x + self.width/3 * 2 - 50, self.y + self.height/2)
+                    pos: (self.x + self.width/3 * 2 - 50, self.y + self.height/2 + self.offset)
                 #smile
                 Line:
                     width: 10
                     bezier:
-                        (self.x + self.width/3, self.y + self.happy * self.height/3 + 20, self.x + self.width/5 * 2, self.y + self.height/6 + 20,
-                        self.x + self.width/5 * 3, self.y + self.height/6 + 20, self.x + self.width/3 * 2, self.y + self.happy * self.height/3 + 20)
+                        (self.x + self.width/8 * 3, self.y + self.happy * self.height/3 + 20 + self.offset, self.x + self.width/7 * 3, self.y + self.height/6 + 20 + self.offset,
+                        self.x + self.width/7 * 4, self.y + self.height/6 + 20 + self.offset, self.x + self.width/8 * 5, self.y + self.happy * self.height/3 + 20 + self.offset)
                 #pupils
                 Color:
                     rgb: 1, 1, 1
                 Ellipse:
                     size: (50, 50 * self.blink)
-                    pos: (self.x + self.width/3 - 25 + 10 * math.cos(math.radians(self.mouse_angle_left)), self.y + self.height/2 + 25 + 10 * math.sin(math.radians(self.mouse_angle_left)))
+                    pos: (self.x + self.width/3 - 25 + 10 * math.cos(math.radians(self.mouse_angle_left)), self.y + self.height/2 + 25 + + self.offset + 10 * math.sin(math.radians(self.mouse_angle_left)))
                 Ellipse:
                     size: (50, 50 * self.blink)
-                    pos: (self.x + self.width/3 * 2 - 25 + 10 * math.cos(math.radians(self.mouse_angle_right)), self.y + self.height/2 + 25 + 10 * math.sin(math.radians(self.mouse_angle_right)))
+                    pos: (self.x + self.width/3 * 2 - 25 + 10 * math.cos(math.radians(self.mouse_angle_right)), self.y + self.height/2 + 25 + + self.offset + 10 * math.sin(math.radians(self.mouse_angle_right)))
+                #moustache
+                Color:
+                    rgb: (root.theme_color[0] - 50/255, root.theme_color[1] - 50/255, root.theme_color[2] - 50/255)
+                Rectangle:
+                    pos: (self.x + self.width/2 - 100, self.y + 100 + self.offset)
+                    size: (200, 50)
+                    source: self.moustache
+                #hat
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: (self.x + self.width / 2 - 100, self.y + self.height/2 + self.offset + 50)
+                    size: (200, 150)
+                    source: self.hat
+
 
         BoxLayout:
             size: self.size
@@ -348,7 +381,7 @@ Manager:
         RoundedRectangle:
             size: self.size
             pos: self.pos
-            source: 'storm_trooper.jpg'
+            source: 'graphics/storm_trooper.jpg'
 
 <NewLevelPopup>:
     title: ""
@@ -421,7 +454,7 @@ Manager:
                     app.root.transition.direction = "right"
 
                 Image:
-                    source: 'profile_2.png'
+                    source: 'graphics/profile_2.png'
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -443,7 +476,7 @@ Manager:
                     app.root.transition.direction = "left"
 
                 Image:
-                    source: 'home.png'
+                    source: 'graphics/home.png'
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -542,6 +575,287 @@ Manager:
                             pos: (self.x + 5, self.y + 5)
 
             Label:
+                text: 'Choose background:'
+                color: root.theme_color
+                font_size: 20
+                size_hint_x: 0.2
+
+            BoxLayout:
+                orientation: 'horizontal'
+                height: 50
+                spacing: 20
+                size_hint_y: None
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_background("graphics/nature.jpg")
+
+                    canvas.before:
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/nature.jpg"
+
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_background("graphics/desert.jpg")
+
+                    canvas.before:
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/desert.jpg"
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal:
+                    on_release:
+                        app.change_background("graphics/city.jpg")
+
+                    canvas.before:
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/city.jpg"
+                        Color:
+                            rgba: 0.5, 0.5, 0.5, 0.8
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+
+            Label:
+                text: 'Body type:'
+                color: root.theme_color
+                font_size: 20
+                size_hint_x: 0.2
+
+            BoxLayout:
+                orientation: 'horizontal'
+                height: 50
+                spacing: 20
+                size_hint_y: None
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_body("graphics/body_triangle_line.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/body_triangle_line.png"
+
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_body("graphics/body_square_line.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/body_square_line.png"
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_body("graphics/body_circle_line.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/body_circle_line.png"
+
+            Label:
+                text: 'Moustache:'
+                color: root.theme_color
+                font_size: 20
+                size_hint_x: 0.2
+
+            BoxLayout:
+                orientation: 'horizontal'
+                height: 50
+                spacing: 20
+                size_hint_y: None
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_moustache("graphics/moustache_1.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: (self.width - 4, self.height/2)
+                            pos: (self.x + 2, self.y + self.height/4)
+                            source: "graphics/moustache_1.png"
+
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_moustache("graphics/moustache_2.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: (self.width - 4, self.height/2)
+                            pos: (self.x + 2, self.y + self.height/4)
+                            source: "graphics/moustache_2.png"
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_moustache("graphics/moustache_4.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: root.theme_color
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                        Color:
+                            rgb: color_dark_blue
+                        RoundedRectangle:
+                            size: (self.width - 4, self.height/2)
+                            pos: (self.x + 2, self.y + self.height/4)
+                            source: "graphics/moustache_4_lined.png"
+            Label:
+                text: 'Body type:'
+                color: root.theme_color
+                font_size: 20
+                size_hint_x: 0.2
+
+            BoxLayout:
+                orientation: 'horizontal'
+                height: 50
+                spacing: 20
+                size_hint_y: None
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_hat("graphics/hat_1.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: 1, 1, 1
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/hat_1.png"
+
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_hat("graphics/hat_2.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: 1, 1, 1
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/hat_2.png"
+
+
+                Button:
+                    size: (50, 50)
+                    size_hint: (None, None)
+                    padding_x: 10
+                    background_color: 1, 1, 1, 0
+                    background_normal: ''
+                    on_release:
+                        app.change_hat("graphics/hat_5.png")
+
+                    canvas.before:
+                        Color:
+                            rgb: 1, 1, 1
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            source: "graphics/hat_5.png"
+
+            Label:
                 text: "Daily question maximum:"
                 font_size: 20
                 color: root.theme_color
@@ -591,7 +905,7 @@ Manager:
                     app.root.transition.direction = "right"
 
                 Image:
-                    source: 'home.png'
+                    source: 'graphics/home.png'
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)
@@ -613,7 +927,7 @@ Manager:
                     app.root.transition.direction = "left"
 
                 Image:
-                    source: 'settings.png'
+                    source: 'graphics/settings.png'
                     y: self.parent.y
                     x: self.parent.x
                     size: (self.parent.width, self.parent.height)

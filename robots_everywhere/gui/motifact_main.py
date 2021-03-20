@@ -33,7 +33,7 @@ kivy.require('2.0.0')
 Window.size = (600, 800)
 
 conversation = [None] * 100
-level_backgrounds = [' ', 'nature.jpg', 'desert.jpg', 'city.jpg']
+level_backgrounds = [' ', 'graphics/nature.jpg', 'graphics/desert.jpg', 'graphics/city.jpg']
 dynamic_elements = []
 
 
@@ -46,6 +46,8 @@ class MainScreen(Screen):
     send_button = ObjectProperty(None)
     conversation_counter = NumericProperty(0)
     level = NumericProperty(1)
+    background_image = StringProperty("")
+
 
     def add_text(self):
 
@@ -76,7 +78,7 @@ class MainScreen(Screen):
             anim = Animation(progress=0)
             anim.bind(on_complete=self.enable_button)
             anim.start(self.progressbar)
-            self.face.background_image = level_backgrounds[self.level - 1]
+            self.background_image = level_backgrounds[self.level - 1]
             self.face.normal_color = (1, 1, 1)
             popup = NewLevelPopup()
             popup.current_level = self.level
@@ -95,8 +97,11 @@ class MainScreen(Screen):
         self.conversation_counter += 1
 
     def blink(self, ms):
-        anim = Animation(blink=0, duration=.1) + \
-            Animation(blink=1, duration=.1)
+        anim = Animation(blink=0, duration=.1) + Animation(blink=1, duration=.1)
+        anim.start(self.face)
+
+    def bounce(self, ms):
+        anim = Animation(offsety=-5, duration=2) + Animation(offsety=5, duration=2)
         anim.start(self.face)
 
     def follow_mouse(self, ms):
@@ -260,8 +265,7 @@ class Manager(ScreenManager):
         dynamic_elements.append(text_1)
         conversation[0] = ['text_box', text_1]
         text_2 = TextMessage()
-        text_2.add_text(
-            "Nice to meet you [NAME]! What do you think of this awesome picture?")
+        text_2.add_text("Nice to meet you [NAME]! What do you think of this awesome picture?")
         dynamic_elements.append(text_2)
         image = ImageMessage()
         conversation[1] = ['text_box', text_2, image]
@@ -287,6 +291,19 @@ class MotiFactApp(App):
     theme_color = (255/255, 183/255, 3/255)
     main_builder = None
 
+    def change_body(self, source):
+        self.main_builder.main_screen.face.body = source
+
+    def change_moustache(self, source):
+        self.main_builder.main_screen.face.moustache = source
+
+    def change_hat(self, source):
+        self.main_builder.main_screen.face.hat = source
+
+    def change_background(self, background):
+        self.main_builder.main_screen.background_image = background
+        self.main_builder.main_screen.face.normal_color = (1, 1, 1)
+
     def change_theme(self, color):
         print('nice')
         self.theme_color = color
@@ -296,12 +313,13 @@ class MotiFactApp(App):
         for widget in dynamic_elements:
             widget.theme_color = self.theme_color
 
+
     def build(self):
         self.main_builder = Builder.load_file(MAIN_KV_FILE)
         Clock.schedule_once(self.main_builder.start, 0)
         Clock.schedule_interval(self.main_builder.main_screen.blink, 5)
-        Clock.schedule_interval(
-            self.main_builder.main_screen.follow_mouse, .05)
+        Clock.schedule_interval(self.main_builder.main_screen.bounce, 4)
+        Clock.schedule_interval(self.main_builder.main_screen.follow_mouse, .05)
         return self.main_builder
 
 
