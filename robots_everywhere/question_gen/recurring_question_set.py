@@ -22,11 +22,14 @@ Class that sets the time when a question occurs
 import enum
 import datetime
 import uuid
-from typing import Set, List
+from typing import Set, List, Union, Optional
+import time
 
 from robots_everywhere.question_gen.question import Question
 from robots_everywhere.question_gen.question_occurrence \
     import QuestionOccurrence
+
+SECOND_IN_A_DAY = 24*60*60
 
 
 class WeekDay(enum.Enum):
@@ -39,22 +42,33 @@ class WeekDay(enum.Enum):
     Sunday = 7
 
 
-class RecurringQuestionSet:
+class WeekTimestamp:
 
-    still_due: bool = True
+    def __init__(self, day: int, hour: int, minute: int):
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+
+
+class RecurringQuestionSet:
 
     def __init__(self, days: Set[WeekDay],
                  hour: int, minutes: int,
-                 questions: Set[Question]):
+                 questions: Set[Question],
+                 start_time: Optional[Union[float, None]] = None):
         self.__days = days
         self.__hour = hour
         self.__minutes = minutes
         self.__questions = questions
-        self.timestamp_previous_questions = datetime.datetime(2000,2,1,1,1,1,1)
-        self.i = 0
+
+        if start_time is not None:
+            self.__prev_timestamp = start_time
+        else:
+            self.__prev_timestamp = time.time()
+        self.__is_still_due = False
 
     @property
-    def days(self) -> List[WeekDay]:
+    def days(self) -> Set[WeekDay]:
         return self.__days
 
     @property
@@ -69,37 +83,39 @@ class RecurringQuestionSet:
     def questions(self) -> Set[Question]:
         return self.__questions
 
-    def is_due(self, current_datetime: datetime = datetime.datetime.now()
-    ) -> bool:
-        self.current_datetime = current_datetime
-        due_time = current_datetime.replace(hour = self.__hour, minute = self.__minutes)
-        print(current_datetime.weekday())
-        if self.timestamp_previous_questions < due_time and (self.timestamp_previous_questions.weekday() <= self.__days[self.i] or self.timestamp_previous_questions.isocalendar()[1] < self.current_datetime.isocalendar()[1]):
-            if current_datetime.weekday() > self.__days[self.i] or (current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]):
-                self.i = self.i + 1
-                if self.i >= len(self.__days):
-                    self.i = 0
-                return True
-            else:
-                return False
+    def is_due(self, current_timestamp: float,
+               ) -> bool:
+
+        if self.__is_still_due():
+            return True
+
+        elif current_timestamp < self.__prev_timestamp:
+            raise RuntimeError("Not allowed to go back in time")
+
+        elif self.__did_a_schedules_timepoint_pass_since_prev_time(current_timestamp):
+            self.__is_still_due = True
+            return True
+
         else:
             return False
 
-    def generate_questions(self, current_time: datetime = datetime.datetime.now()) -> QuestionOccurrence:
-        if self.is_due(current_time):
-            RecurringQuestionSet.timestamp_previous_questions = current_time
-            return QuestionOccurrence(self.questions, id = uuid.uuid4().int)
+    def __did_timepoint_pass_since_prev_generate_questions(self,
+                                                           current_time: float
+                                                           ) -> bool:
+        prev_timestamp_rounded_to_week = self.__prev_timestamp % SECOND_IN_A_DAY
+        current_time_rounded_to_week = current_time % SECOND_IN_A_DAY
+        is_week_later = prev_timestamp_rounded_to_week < current_time_rounded_to_week
+        pass
 
+    def generate_questions(self,
+                           current_time: Optional[Union[float, None]] = None
+                           ) -> QuestionOccurrence:
+        if not self.is_due(current_time):
+            raise RuntimeError("ReoccurringQuestionSet is not yet due.")
 
+        self.__is_still_due = False
+        if current_time is None:
+            current_time = time.time()
+        self.__prev_timestamp = current_time
 
-
-
-
-
-
-
-
-
-
-
-
+        return QuestionOccurrence(self.questions, id=uuid.uuid4().int)
