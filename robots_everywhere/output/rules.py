@@ -27,7 +27,7 @@ from typing import Iterable, Sequence, Set, Tuple, Any, Dict, Sized, Union
 from numbers import Number
 from collections import namedtuple
 
-from robots_everywhere.message import OutputMessage
+from robots_everywhere.message import FeedbackMessage
 from robots_everywhere.database.database import DatabaseReader
 ParseResults = namedtuple("ParseResults",
                           ["trigger_expr", "message_expr", "eval_expr", "vars_dict"])

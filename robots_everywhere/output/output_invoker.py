@@ -29,7 +29,7 @@ import random
 import uuid
 from numbers import Number
 
-from robots_everywhere.message import OutputMessage
+from robots_everywhere.message import FeedbackMessage
 from robots_everywhere.database.database import DatabaseReader
 from robots_everywhere.output.rules import Rule
 
@@ -56,11 +56,11 @@ class OutputInvoker:
             for rule in fireable_rules:
                 message_content, evaluation = rule.fire(self.__db)
                 message_id = uuid.uuid4().int # Random unique number
-                message = OutputMessage(message_id,
+                message = FeedbackMessage(message_id,
                                         str(message_content), 
                                         evaluation)
                 self.__pipe.send(message)
-                print(f"OutputMessage with ID={message_id} send to GUI")
+                print(f"FeedbackMessage with ID={message_id} send to GUI")
 
             time.sleep(sleep_time)
         print("OutputInvoker stopped.")

@@ -84,7 +84,7 @@ class AnswerMessage(VariableMessage):
     def value(self) -> Any:
         return self.__value
 
-class OutputMessage(TextMessage):
+class FeedbackMessage(TextMessage):
     """
     Message carrying a text (a string) 
     and an evaluation (a float in [-1, 1]).
