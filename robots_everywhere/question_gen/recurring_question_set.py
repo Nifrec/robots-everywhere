@@ -39,15 +39,14 @@ class WeekDay(enum.Enum):
 class RecurringQuestionSet:
 
     still_due: bool = True
-    timestamp_previous_questions: datetime
-    i: int
 
-    def __init__(self, days: {WeekDay}, hour: int, minutes: int, questions: {Question}):
+    def __init__(self, days: [WeekDay], hour: int, minutes: int, questions: {Question}):
         self.__days = days
         self.__hour = hour
         self.__minutes = minutes
         self.__questions = questions
-
+        self.timestamp_previous_questions = datetime.datetime(2000,2,1,1,1,1,1)
+        self.i = 0
 
     @property
     def days(self) -> [WeekDay]:
@@ -68,9 +67,9 @@ class RecurringQuestionSet:
     def is_due(self, current_datetime: datetime = datetime.datetime.now()) -> bool:
         self.current_datetime = current_datetime
         due_time = current_datetime.replace(hour = self.__hour, minute = self.__minutes)
-
-        if self.timestamp_previous_questions < due_time and self.timestamp_previous_questions.weekday() <= self.__days[self.i]:
-            if current_datetime.weekday() > self.__days[self.i] or current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]:
+        print(current_datetime.weekday())
+        if self.timestamp_previous_questions < due_time and (self.timestamp_previous_questions.weekday() <= self.__days[self.i] or self.timestamp_previous_questions.isocalendar()[1] < self.current_datetime.isocalendar()[1]):
+            if current_datetime.weekday() > self.__days[self.i] or (current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]):
                 self.i = self.i + 1
                 if self.i >= len(self.__days):
                     self.i = 0
@@ -82,7 +81,7 @@ class RecurringQuestionSet:
 
     def generate_questions(self, current_time: datetime = datetime.datetime.now()) -> QuestionOccurrence:
         if self.is_due(current_time):
-            self.timestamp_previous_questions = current_time
+            RecurringQuestionSet.timestamp_previous_questions = current_time
             return QuestionOccurrence(self.questions, id = uuid.uuid4().int)
 
 
