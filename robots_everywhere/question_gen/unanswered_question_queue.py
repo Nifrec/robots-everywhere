@@ -16,50 +16,26 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Class that regulates the occurrence of questions
+Class that queues the unanswered questions
 """
 
-from robots_everywhere.question_gen.question import Question
-#import enum
+from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
 
 
-#class QuestionStatus(enum.Enum):
-#    unanswered = 0
-#    answered = 1
-#    snoozed = 2
-#    cancelled = 3
+class UnansweredQuestionQueue:
 
+    def __init__(self, unanswered_questions: {QuestionOccurrence}):
+        self.unanswered_questions = unanswered_questions
 
-class QuestionOccurrence:
+    def pop_unanswered_question(self) -> QuestionOccurrence:
+        return self.unanswered_questions.pop()
 
-    def __init__(self, questions: {Question}, id: int):
-        self.__id = id
-        self.__questions = questions
+    def add_new_occurrences_if_any(self, schedule: QuestionSchedule):
+        pass
 
-    @property
-    def id(self) -> int:
-        return self.__id
-
-    @property
-    def questions(self) -> {Question}:
-        return self.__questions
-
-    def __str__(self) -> str:
-        return f"{self.id}: {repr(self.questions.content)}"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def is_empty(self) -> bool:
+        if len(self.unanswered_questions) == 0:
+            return True
+        else:
+            return False
 
