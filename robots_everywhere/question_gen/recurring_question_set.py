@@ -22,8 +22,11 @@ Class that sets the time when a question occurs
 import enum
 import datetime
 import uuid
+from typing import Set, List
+
 from robots_everywhere.question_gen.question import Question
-from robots_everywhere.question_gen.question_occurrence import QuestionOccurrence
+from robots_everywhere.question_gen.question_occurrence \
+    import QuestionOccurrence
 
 
 class WeekDay(enum.Enum):
@@ -42,15 +45,16 @@ class RecurringQuestionSet:
     timestamp_previous_questions: datetime
     i: int
 
-    def __init__(self, days: {WeekDay}, hour: int, minutes: int, questions: {Question}):
+    def __init__(self, days: Set[WeekDay],
+                 hour: int, minutes: int,
+                 questions: Set[Question]):
         self.__days = days
         self.__hour = hour
         self.__minutes = minutes
         self.__questions = questions
 
-
     @property
-    def days(self) -> [WeekDay]:
+    def days(self) -> List[WeekDay]:
         return self.__days
 
     @property
@@ -62,12 +66,14 @@ class RecurringQuestionSet:
         return self.__minutes
 
     @property
-    def questions(self) -> {Question}:
+    def questions(self) -> Set[Question]:
         return self.__questions
 
-    def is_due(self, current_datetime: datetime = datetime.datetime.now()) -> bool:
+    def is_due(self, current_datetime: datetime = datetime.datetime.now()
+    ) -> bool:
         self.current_datetime = current_datetime
-        due_time = current_datetime.replace(hour = self.__hour, minute = self.__minutes)
+        due_time = current_datetime.replace(
+            hour=self.__hour, minute=self.__minutes)
 
         if self.timestamp_previous_questions < due_time and self.timestamp_previous_questions.weekday() <= self.__days[self.i]:
             if current_datetime.weekday() > self.__days[self.i] or current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]:
@@ -83,18 +89,4 @@ class RecurringQuestionSet:
     def generate_questions(self, current_time: datetime = datetime.datetime.now()) -> QuestionOccurrence:
         if self.is_due(current_time):
             self.timestamp_previous_questions = current_time
-            return QuestionOccurrence(self.questions, id = uuid.uuid4().int)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return QuestionOccurrence(self.questions, id=uuid.uuid4().int)
