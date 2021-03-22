@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Class Question that generates a question
 """
-from robots_everywhere.database.database_writer import Variable
+from robots_everywhere.database.database import Variable
 
 class Question:
 
@@ -46,3 +46,6 @@ class Question:
             return False
         else:
             return other.content == self.content and other.variable == self.variable
+
+    def __hash__(self):
+        return hash(self.__content) + hash(self.__variable.name)

@@ -29,9 +29,15 @@ DB_FILENAME = "robots_db_" + os.getlogin() + ".db"
 # Location where the database file (.db) is stored
 DB_FILE_LOCATION = os.path.join(PROJECT_ROOT_DIR, DB_FILENAME)
 
+# Location + filename where the configuration file 
+# (in which Rules and Variables can be defined) 
+# is located.
+CONFIG_FILE = os.path.join(PROJECT_ROOT_DIR, "config.txt")
+
+
 TYPE_TO_STR = {
     str: 'str',
-    float: 'flaot',
+    float: 'float',
     int: 'int',
     list: 'list',
     tuple: 'tuple',
@@ -43,3 +49,5 @@ GET_ALL_VARS_QUERY = """
 SELECT var_type, var_name
 FROM variables;
 """
+
+OUTPUT_INVOKER_SLEEP_TIME = 1 #second

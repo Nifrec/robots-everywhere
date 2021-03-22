@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>9</zoom_level>
+  <zoom_level>10</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>720</x>
-      <y>63</y>
-      <w>162</w>
-      <h>99</h>
+      <x>1080</x>
+      <y>260</y>
+      <w>180</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>*Variable*
 --
-- type: Class
+- var_type: Class
 - name: str
 --
 + get_type(): Class
@@ -22,10 +22,10 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1026</x>
-      <y>63</y>
-      <w>306</w>
-      <h>99</h>
+      <x>1410</x>
+      <y>430</y>
+      <w>400</w>
+      <h>130</h>
     </coordinates>
     <panel_attributes>*DatabaseWriter*
 --
@@ -34,72 +34,74 @@ style=autoresize</panel_attributes>
 --
 + get_variables() -&gt; Iterable[Variable]
 + execute_sql(sql_command: str)
++ execute_query(sql_command: str): List[Tuple]
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>981</x>
-      <y>531</y>
-      <w>351</w>
-      <h>117</h>
+      <x>690</x>
+      <y>1170</y>
+      <w>480</w>
+      <h>110</h>
     </coordinates>
-    <panel_attributes>*QuestionSchedule*
+    <panel_attributes>*UnansweredQuestionQueue*
 --
-+ active_occurences:   Set[QuestionOccurence]
-+ answered_occurences: Set[QuestionOccurence]
-+ finished_occurences: Set[QUestionOccurence]
+- unanswered_questions: Set[QuestionOccurrence]
 --
-+ generate_new_occurences_when_needed
-+ store_answers_in_db()
++ pop(): QuestionOccurence
++ add_new_occurences_if_any(schedule: QuestionSchedule)
++ is_empty(): bool
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>873</x>
-      <y>72</y>
-      <w>171</w>
-      <h>45</h>
+      <x>1150</x>
+      <y>360</y>
+      <w>280</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=*
 + variables</panel_attributes>
-    <additional_attributes>10.0;20.0;170.0;20.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0;260.0;100.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>306</x>
-      <y>513</y>
-      <w>450</w>
-      <h>189</h>
+      <x>20</x>
+      <y>1270</y>
+      <w>490</w>
+      <h>240</h>
     </coordinates>
     <panel_attributes>*RecurringQuestionSet*
 --
 - days: Set[WeekDay]
 - hour: int
 - minutes: int
-- variables: Set[Variable]
+- questions: Set[Question]
+- still_due: bool
+- timestamp_previous_questions: float
 --
 + get_days(): Set[WeekDay]
 + get_hour(): int
 + get_minutes(): int
-+ get_variables(): Set[Variable]
-+ is_due(current_time: float, previous_check: float): bool
-+ generate_occurence(): QuestionOccurence
++ is_due(current_time: float): bool
++ generate_questions(current_time: float = time.time()):
+                     Set[QuestionOccurence]
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>477</x>
-      <y>162</y>
-      <w>108</w>
-      <h>153</h>
+      <x>700</x>
+      <y>300</y>
+      <w>120</w>
+      <h>170</h>
     </coordinates>
     <panel_attributes>&lt;&lt;Enumeration&gt;&gt;
 *WeekDay*
@@ -117,10 +119,10 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>297</x>
-      <y>171</y>
-      <w>117</w>
-      <h>108</h>
+      <x>530</x>
+      <y>400</y>
+      <w>130</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>&lt;&lt;Enumeration&gt;&gt;
 *QuestionStatus*
@@ -135,76 +137,64 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>684</x>
-      <y>792</y>
-      <w>477</w>
-      <h>144</h>
+      <x>790</x>
+      <y>1020</y>
+      <w>230</w>
+      <h>70</h>
     </coordinates>
-    <panel_attributes>*QuestionOccurence*
+    <panel_attributes>*QuestionOccurrence*
 --
-- status: QuestionStatus
-- questions: Set[Question]
-- snooze_time: int = 0
---
-+ get_status(): QuestionStatus
-+ set_status(new_status: QuestionStatus)
-+ snooze(minutes: int)
-+ get_commands(db_writer: DatabaseWriter): Set[InsertCommand]
++ questions: Set[Question]
++ id: int
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>774</y>
-      <w>459</w>
-      <h>171</h>
+      <x>440</x>
+      <y>1020</y>
+      <w>230</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>*Question*
 --
 - content: str
 - variable: Variable
-- answer: Any
 --
 + get_content(): str
 + get_variable(): Variable
-+ get_answer(): Any
-
-+ register_answer(ans: str)
-+ extract_command(db_writer: DatabaseWriter): InsertCommand
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>450</x>
-      <y>819</y>
-      <w>252</w>
-      <h>45</h>
+      <x>660</x>
+      <y>1060</y>
+      <w>150</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=*
 + questions</panel_attributes>
-    <additional_attributes>10.0;20.0;260.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1431</x>
-      <y>306</y>
-      <w>216</w>
-      <h>126</h>
+      <x>1510</x>
+      <y>640</y>
+      <w>240</w>
+      <h>130</h>
     </coordinates>
     <panel_attributes>&lt;&lt;Abstract&gt;&gt;
 /*Command*/
 --
 - is_executed: bool = False
-- database: DatabaseWriter
+- db_writer: DatabaseWriter
 --
 + execute()
-+ revert()
 + get_is_executed(): bool
 style=autoresize</panel_attributes>
     <additional_attributes/>
@@ -212,112 +202,818 @@ style=autoresize</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1422</x>
-      <y>522</y>
-      <w>234</w>
-      <h>162</h>
+      <x>1510</x>
+      <y>1080</y>
+      <w>240</w>
+      <h>220</h>
     </coordinates>
-    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
-/*InsertCommand*/
+    <panel_attributes>*InsertCommand*
 --
 - is_executed: bool = False
-- database: DatabaseWriter
-- execute_sql_code: str
-- revert_sql_code: str = None
+- db_writer: DatabaseWriter
+- id: in
+- variable: Variable
+- timestamp: int
+- new_value: Any
 --
-+ execute()
-+ revert()
 + get_is_executed(): bool
++ get_id()
+
++ execute()
++ undo()
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1323</x>
-      <y>144</y>
-      <w>225</w>
-      <h>180</h>
+      <x>1620</x>
+      <y>550</y>
+      <w>40</w>
+      <h>110</h>
     </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;230.0;180.0</additional_attributes>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1530</x>
-      <y>423</y>
-      <w>27</w>
-      <h>117</h>
+      <x>1620</x>
+      <y>1030</y>
+      <w>30</w>
+      <h>70</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>513</x>
-      <y>153</y>
-      <w>297</w>
-      <h>378</h>
+      <x>260</x>
+      <y>300</y>
+      <w>840</w>
+      <h>990</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=*
 + variables</panel_attributes>
-    <additional_attributes>310.0;10.0;10.0;400.0</additional_attributes>
+    <additional_attributes>820.0;10.0;10.0;470.0;10.0;970.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>747</x>
-      <y>576</y>
-      <w>252</w>
-      <h>36</h>
+      <x>270</x>
+      <y>1500</y>
+      <w>210</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=*</panel_attributes>
-    <additional_attributes>10.0;10.0;260.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0;190.0;90.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>918</x>
-      <y>639</y>
-      <w>108</w>
-      <h>171</h>
+      <x>890</x>
+      <y>1080</y>
+      <w>40</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m1=*</panel_attributes>
-    <additional_attributes>10.0;170.0;10.0;100.0;100.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1242</x>
-      <y>828</y>
-      <w>144</w>
-      <h>72</h>
+      <x>1180</x>
+      <y>1490</y>
+      <w>410</w>
+      <h>220</h>
     </coordinates>
-    <panel_attributes>*BackendQuestioner*
+    <panel_attributes>*QuestionCommunicator*
+--
+- executed_commands: List[Command]
+- undone_commands: List[Command]
+- schedule: QuestionSchedule
+- db_writer: DatabaseWriter
+--
++ get_active_questions(): Set[Question]
+
++ mainloop(pipe: multiprocessing.Pipe)
+- add_new_variable(var: Variable)
+- store_answer(answer: Answer)
+- register_incoming_answers(): Iterable[Answer]
+- send_questions(questions: Set[Question])
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1030</x>
+      <y>1580</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>10.0;10.0;150.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>1660</x>
+      <y>2050</y>
+      <w>520</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>GUI Process
 --
 
+bg=gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1920</x>
+      <y>2150</y>
+      <w>40</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*GUI*
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1340</x>
+      <y>1700</y>
+      <w>90</w>
+      <h>270</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+m1=1
+m2=1
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0;70.0;250.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1360</x>
+      <y>550</y>
+      <w>140</w>
+      <h>960</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>110.0;10.0;110.0;140.0;10.0;240.0;10.0;940.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>980</x>
+      <y>200</y>
+      <w>350</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Type is a reserved keyword in Python
+bg=#f5df9a</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>2090</x>
+      <y>480</y>
+      <w>920</w>
+      <h>1090</h>
+    </coordinates>
+    <panel_attributes>Output Production Process
 --
+layer=-1
+fg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1510</x>
+      <y>850</y>
+      <w>240</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*ReversibleCommand*/
+--
+- is_executed: bool = False
+- db_writer: DatabaseWriter
+- id: int
+--
++ get_is_executed(): bool
++ get_id(): int
 
++ execute()
++ undo()
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1620</x>
+      <y>760</y>
+      <w>30</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>520</x>
+      <y>0</y>
+      <w>400</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/Red means uncertain/major revision needed/
+bg=red
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>520</x>
+      <y>30</y>
+      <w>400</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>/Pink means it is a suggestion/
+/but maybe not necessary/
+bg=pink
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2190</x>
+      <y>1230</y>
+      <w>340</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>*OutputInvoker*
+--
+- rules: Iterable[Rule]
+--
++ mainloop(pipe: multiprocessing.Pipe)
+- find_invoked_rules(): Iterable[Rule]
+- invoke_rules(): 
 style=autoresize</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>684</x>
-      <y>936</y>
-      <w>477</w>
-      <h>63</h>
+      <x>1490</x>
+      <y>1800</y>
+      <w>600</w>
+      <h>170</h>
     </coordinates>
-    <panel_attributes>Only allow sets of questions to be done together?
-(Can always just use a single question in QuestionOccurence,
-but we could enforce this)
+    <panel_attributes>Multiprocessing is used to run the question generation,
+the GUI and the output generation in parallel.
+Python's multiprocessing.Pipe is used to send data between processes.
+Here it will be used to exchange QuestionMessages, AnswerMessages
+and OutputMessages. 
+The QuestionCommunicator will be able to match a Question
+to its AnswerMessage via their ID. It will also store this
+ID in the corresponding InsertCommand, making it possible to undo
+a command given only the question or answer that it was derived from.
+style=autoresize
 bg=#f5df9a</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>2690</x>
+      <y>960</y>
+      <w>290</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>After firing,
+only becomes fireable again
+when new changes occur in the 
+database that make the rule fire.
+Otherwise the same output would
+be generated indefinitely.
+style=autoresize
+bg=#f5df9a</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2670</x>
+      <y>1350</y>
+      <w>180</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>*OutputTextGenerator*
+--
+- state: Tensor
+--
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2610</x>
+      <y>1170</y>
+      <w>360</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*torch.nn.Module*/
+--
+--
++ get_named_parameters(): Iterable[Tuple]
++ get_parameters(): Iterable[Parameter]
++ forward(x: Tensor): Tensor
+bg=gray
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2750</x>
+      <y>1270</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2430</x>
+      <y>1080</y>
+      <w>130</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+rules</panel_attributes>
+    <additional_attributes>70.0;10.0;70.0;110.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2520</x>
+      <y>1300</y>
+      <w>170</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=*
+generator</panel_attributes>
+    <additional_attributes>150.0;80.0;60.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1390</x>
+      <y>1950</y>
+      <w>60</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>*Pipe*
+bg=cyan
+style=autoresize
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1410</x>
+      <y>1990</y>
+      <w>530</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+m1=1
+m2=1
+fg=blue</panel_attributes>
+    <additional_attributes>510.0;180.0;170.0;180.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2320</x>
+      <y>1930</y>
+      <w>50</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>*Pipe*
+bg=cyan
+style=autoresize
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1950</x>
+      <y>1970</y>
+      <w>420</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+m1=1
+m2=1
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;200.0;390.0;200.0;390.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2330</x>
+      <y>1330</y>
+      <w>40</w>
+      <h>620</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+m1=1
+m2=1
+fg=blue</panel_attributes>
+    <additional_attributes>10.0;600.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>0</x>
+      <y>810</y>
+      <w>2020</w>
+      <h>950</h>
+    </coordinates>
+    <panel_attributes>Data Gather Process
+--
+layer=-1
+fg=cyan</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2090</x>
+      <y>340</y>
+      <w>550</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>*DatabaseReader*
+--
+- conn: Connection
+--
++ get_values_var(var: Variable) -&gt; ndarray
++ get_vars_dict(vars: Iterable[Variable]) -&gt; Dict[str, ndarray]
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2290</x>
+      <y>960</y>
+      <w>370</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>*Rule*
+--
+- trigger: TriggerExpression
+- messager: MessageExpression
+- evaluator: EvaluationExpression
+--
++ check_fireable(db: DatabaseReader): bool
++ fire(db: DatabaseReader): float
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2310</x>
+      <y>530</y>
+      <w>390</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*RuleExpression*/
+--
+- expression: str
+- variables: Set[Variable]
+--
++ get_variables() -&gt; Set[Variable]
++ __call__(db: DatabaseReader): Any
+# _hook_check_output_value(output: Any): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2250</x>
+      <y>750</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*TriggerExpression*
+--
+--
+# _hook_check_output_value(
+         output: Any): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2510</x>
+      <y>750</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*MessageExpression*
+--
+--
+# _hook_check_output_value(
+         output: Any): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2350</x>
+      <y>660</y>
+      <w>170</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>150.0;10.0;150.0;40.0;10.0;40.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2490</x>
+      <y>680</y>
+      <w>160</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;140.0;20.0;140.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2320</x>
+      <y>820</y>
+      <w>170</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0;150.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2500</x>
+      <y>820</y>
+      <w>160</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>130.0;10.0;130.0;50.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2220</x>
+      <y>430</y>
+      <w>110</w>
+      <h>820</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;750.0;90.0;800.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>460</x>
+      <y>1520</y>
+      <w>580</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*QuestionSchedule*
+--
+- question_sets: Iterable[ReoccuringQuestionSet]
+--
++ get_new_occurences(current_time: float): Tuple[QuestionOccurence]
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1020</x>
+      <y>1270</y>
+      <w>180</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>17.0;10.0;20.0;70.0;160.0;220.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2760</x>
+      <y>750</y>
+      <w>240</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*EvaluationExpression*
+--
+--
+# _hook_check_output_value(
+         output: Any): bool
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2620</x>
+      <y>680</y>
+      <w>280</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>10.0;20.0;260.0;20.0;260.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2560</x>
+      <y>820</y>
+      <w>350</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1</panel_attributes>
+    <additional_attributes>320.0;10.0;320.0;70.0;100.0;70.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>2000</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*VariableMessage*
+--
+- var: Variable
+--
++ get_variable: Variable
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>940</x>
+      <y>1840</y>
+      <w>140</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Abstract&gt;&gt;
+/*Message*/
+--
+- id: int
+--
++ get_id(): int
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1040</x>
+      <y>2000</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*TextMessage*
+--
+- text: str
+--
++ get_text(): str
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>780</x>
+      <y>2170</y>
+      <w>140</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*QuestionMessage*
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1040</x>
+      <y>2150</y>
+      <w>170</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>*AnswerMessage*
+--
+- value: Any
+--
++ get_value(): Any
+style=autoresize</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1030</x>
+      <y>1930</y>
+      <w>50</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>930</x>
+      <y>1930</y>
+      <w>60</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>40.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>850</x>
+      <y>2070</y>
+      <w>30</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>850</x>
+      <y>2070</y>
+      <w>300</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>275.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1130</x>
+      <y>2070</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>15.0;10.0;15.0;80.0</additional_attributes>
   </element>
 </diagram>
