@@ -50,7 +50,7 @@ class RecurringQuestionSet:
 
 
     @property
-    def days(self) -> {WeekDay}:
+    def days(self) -> [WeekDay]:
         return self.__days
 
     @property
@@ -69,9 +69,11 @@ class RecurringQuestionSet:
         self.current_datetime = current_datetime
         due_time = current_datetime.replace(hour = self.__hour, minute = self.__minutes)
 
-        if self.timestamp_previous_questions < due_time:
+        if self.timestamp_previous_questions < due_time and self.timestamp_previous_questions.weekday() <= self.__days[self.i]:
             if current_datetime.weekday() > self.__days[self.i] or current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]:
                 self.i = self.i + 1
+                if self.i >= len(self.__days):
+                    self.i = 0
                 return True
             else:
                 return False
