@@ -40,7 +40,7 @@ class RecurringQuestionSet:
 
     still_due: bool = True
     timestamp_previous_questions: datetime
-    i: int = 0
+    i: int
 
     def __init__(self, days: {WeekDay}, hour: int, minutes: int, questions: {Question}):
         self.__days = days
@@ -67,10 +67,10 @@ class RecurringQuestionSet:
 
     def is_due(self, current_datetime: datetime = datetime.datetime.now()) -> bool:
         self.current_datetime = current_datetime
-        due_time = current_datetime.replace(day =  self.__days[self.i], hour =  self.__hour, minute = self.__minutes)
+        due_time = current_datetime.replace(hour = self.__hour, minute = self.__minutes)
 
         if self.timestamp_previous_questions < due_time:
-            if current_datetime > due_time:
+            if current_datetime.weekday() > self.__days[self.i] or current_datetime > due_time and current_datetime.weekday() == self.__days[self.i]:
                 self.i = self.i + 1
                 return True
             else:
