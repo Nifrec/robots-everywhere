@@ -27,6 +27,10 @@ import os
 import robots_everywhere.gui.user_info as user_info
 import robots_everywhere.settings as settings
 import robots_everywhere.gui.connection_info as ci
+from robots_everywhere.message import QuestionMessage
+from robots_everywhere.message import AnswerMessage
+from robots_everywhere.message import FeedbackMessage
+
 
 MAIN_KV_FILE = os.path.join(settings.PROJECT_ROOT_DIR, "robots_everywhere",
                             "gui", "motifact_main.kv")
@@ -46,28 +50,33 @@ class MainScreen(Screen):
     progressbar = ObjectProperty(None)
     level_display = ObjectProperty(None)
     send_button = ObjectProperty(None)
-    message_type = "text_box"
+    message_type = None
+    message_id = 0
     level = NumericProperty(1)
     background_image = StringProperty("")
 
     def add_text(self):
         # ensure that the right type of information is read from previous question
-        if self.message_type == 'text_box':
-            self.chat_window.send_message(self.user_input.getText())
+        if isinstance(self.message_type.var_type, str):
+            text = self.user_input.getText()
+            self.chat_window.send_message(text)
             # send response trough output pipe
-            ci.output_connection.send(self.user_input.getText())
+            user_message = AnswerMessage(self.message_id, self.message_type, text)
+            ci.output_connection.send(user_message)
             self.user_input.removeText()
-        if self.message_type == 'slider':
+        if isinstance(self.message_type.var_type, (float, int)):
             slider_value = self.user_input.getSliderValue()
-            anim = Animation(happy=slider_value / 10)
-            anim.start(self.face)
+            self.change_mouth(slider_value, 0, 10)
             self.chat_window.send_message(str(round(slider_value)))
             # send response trough output pipe
-            ci.output_connection.send(slider_value)
-        if self.message_type == 'multiple_choice':
-            self.chat_window.send_message(self.user_input.getMS())
+            user_message = AnswerMessage(self.message_id, self.message_type, slider_value)
+            ci.output_connection.send(user_message)
+        if isinstance(self.message_type.var_type, bool):
+            bool_answer = self.user_input.getMS()
+            self.chat_window.send_message(bool_answer)
             # send response trough output pipe
-            ci.output_connection.send(self.user_input.getMS())
+            user_message = AnswerMessage(self.message_id, self.message_type, bool_answer)
+            ci.output_connection.send(user_message)
 
         # disable send button until animation is done
         self.send_button.disabled = True
@@ -91,14 +100,27 @@ class MainScreen(Screen):
             popup.open()
 
     def setup_message(self, message):
-        if message[1] == 'text_box':
+        if isinstance(message, QuestionMessage):
+            if isinstance(message.variable.var_type, (int, float)):
+                self.user_input.addTextBox()
+            elif isinstance(message.variable.var_type, (int, float)):
+                self.user_input.addSlider()
+            elif isinstance(message, bool):
+                self.user_input.addMS()
+            else:
+                print("This variable message type is not one of the options")
+                self.user_input.addTextBox()
+            self.message_type = message.variable
+            self.message_id = message.id
+        elif isinstance(message, FeedbackMessage):
+            self.change_mouth(message.evaluation, -1, 1)
             self.user_input.addTextBox()
-        elif message[1] == 'slider':
-            self.user_input.addSlider()
-        elif message[1] == 'multiple_choice':
-            self.user_input.addMS()
-        self.message_type = message[1]
-        self.chat_window.send_message_computer(message[0])
+        self.chat_window.send_message_computer(message)
+
+    def change_mouth(self, value, min_value, max_value):
+        mouth_range = value - min_value / (max_value - min_value)
+        anim = Animation(happy=mouth_range)
+        anim.start(self.face)
 
     def blink(self, ms):
         anim = Animation(blink=0, duration=.1) + Animation(blink=1, duration=.1)
@@ -203,7 +225,7 @@ class ChatWindow(BoxLayout):
 
     def send_message(self, message):
         text_message = TextMessage()
-        text_message.add_text(message)
+        text_message.add_text(message.text)
         text_row = TextRow()
         text_row.add_widget(EmptyMessage())
         text_row.add_widget(text_message)
@@ -212,7 +234,7 @@ class ChatWindow(BoxLayout):
 
     def send_message_computer(self, message):
         text_message = TextMessage()
-        text_message.add_text(message)
+        text_message.add_text(message.text)
         self.add_widget(text_message)
         self.parent.scroll_to(text_message)
 
