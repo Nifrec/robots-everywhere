@@ -22,9 +22,10 @@ from typing import List, Sequence
 from multiprocessing import Pipe, Process
 from multiprocessing.connection import Connection
 
+from robots_everywhere.message import QuestionMessage, FeedbackMessage
 from robots_everywhere.output.output_invoker import OutputInvoker
 from robots_everywhere.output.rules import Rule
-from robots_everywhere.database.database import DatabaseReader, DatabaseWriter
+from robots_everywhere.database.database import DatabaseReader, DatabaseWriter, Variable
 import robots_everywhere.settings as settings
 from robots_everywhere.startup.rule_loading import read_rules_from_file, read_vars_form_file
 from robots_everywhere.gui.motifact_main import MotiFactApp
@@ -72,7 +73,7 @@ def start_up_child_processes(db: DatabaseWriter, rules: Sequence[Rule]):
     output_proc = Process(target=start_up_output_generator,
                           args=(output_to_gui, rules, db))
 
-    questions_to_gui.send(["Hi there!", "text_box"])
+    questions_to_gui.send(FeedbackMessage(1, "You did very bad...", 0.0))
     gui_proc.start()
     questions_proc.start()
     output_proc.start()

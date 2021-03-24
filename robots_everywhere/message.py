@@ -64,7 +64,7 @@ class TextMessage(Message):
 
 class QuestionMessage(VariableMessage):
     
-    def __init__(self, id_num: int, text: str, var: VariableMessage):
+    def __init__(self, id_num: int, text: str, var: Variable):
         VariableMessage.__init__(self, id_num, var=var)
         assert isinstance(text, str)
         self.__text = text
@@ -84,7 +84,7 @@ class AnswerMessage(VariableMessage):
     def value(self) -> Any:
         return self.__value
 
-class OutputMessage(TextMessage):
+class FeedbackMessage(TextMessage):
     """
     Message carrying a text (a string) 
     and an evaluation (a float in [-1, 1]).

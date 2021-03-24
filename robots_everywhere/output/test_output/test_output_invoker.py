@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Testcases for the class OutputInvoker.
 """
-from robots_everywhere.message import OutputMessage
+from robots_everywhere.message import FeedbackMessage
 import time
 import unittest
 import numpy as np
@@ -99,8 +99,8 @@ class OuputInvokerTestCase(unittest.TestCase):
         invoker.mainloop(0.001, 1)
 
         self.assertTrue(testcase_end.poll(), "No message in the pipe")
-        result: OutputMessage = testcase_end.recv()
-        self.assertIsInstance(result, OutputMessage)
+        result: FeedbackMessage = testcase_end.recv()
+        self.assertIsInstance(result, FeedbackMessage)
         self.assertAlmostEqual(result.evaluation, np.tanh(0.1))
         self.assertEqual(result.text, "[14.1]")
         self.assertFalse(self.rule_1.check_fireable(self.db))
@@ -155,11 +155,11 @@ class OuputInvokerTestCase(unittest.TestCase):
 
         self.assertTrue(testcase_end.poll())
         result_1 = testcase_end.recv()
-        self.assertIsInstance(result_1, OutputMessage)
+        self.assertIsInstance(result_1, FeedbackMessage)
 
         self.assertTrue(testcase_end.poll())
         result_2 = testcase_end.recv()
-        self.assertIsInstance(result_2, OutputMessage)
+        self.assertIsInstance(result_2, FeedbackMessage)
 
         self.assertFalse(testcase_end.poll())
 
