@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Class that sets the time when a question occurs
+Class that creates a recurring question set
 """
 
 import enum
@@ -35,11 +35,11 @@ SECOND_IN_A_DAY = 24*60*60
 class WeekDay(enum.Enum):
     Monday = 0
     Tuesday = 1
-    Wednesday = 3
-    Thursday = 4
-    Friday = 5
-    Saturday = 6
-    Sunday = 7
+    Wednesday = 2
+    Thursday = 3
+    Friday = 4
+    Saturday = 5
+    Sunday = 6
 
 
 class WeekTimestamp:
@@ -88,7 +88,7 @@ class RecurringQuestionSet:
     def is_due(self, current_timestamp: float,
                ) -> bool:
 
-        if self.__is_still_due():
+        if self.__is_still_due:
             return True
 
         elif current_timestamp < self.__prev_timestamp:
@@ -133,8 +133,7 @@ class RecurringQuestionSet:
             elif is_week_later and (local_time_previous.tm_wday < day.value or local_time_current.tm_wday > day.value):
                 self.__is_still_due = True
                 return True
-            else:
-                return False
+        return False
 
     def is_timepoint_passed_other_timepoint(self, hour: int, minute: int,
                                             other_hour: int, other_minute: int) -> bool:
@@ -160,4 +159,4 @@ class RecurringQuestionSet:
             current_time = time.time()
         self.__prev_timestamp = current_time
 
-        return QuestionOccurrence(self.questions, id=uuid.uuid4().int)
+        return QuestionOccurrence(self.__questions, id=uuid.uuid4().int)
