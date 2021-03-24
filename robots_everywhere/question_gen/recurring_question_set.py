@@ -50,6 +50,8 @@ class WeekTimestamp:
         self.minute = minute
 
 
+
+
 class RecurringQuestionSet:
 
     def __init__(self, days: Set[WeekDay],
@@ -92,20 +94,60 @@ class RecurringQuestionSet:
         elif current_timestamp < self.__prev_timestamp:
             raise RuntimeError("Not allowed to go back in time")
 
-        elif self.__did_a_schedules_timepoint_pass_since_prev_time(current_timestamp):
+        elif self.__did_a_schedules_timepoint_pass_since_prev_generate_questions(current_timestamp):
             self.__is_still_due = True
             return True
 
         else:
             return False
 
-    def __did_timepoint_pass_since_prev_generate_questions(self,
+    def __did_a_schedules_timepoint_pass_since_prev_generate_questions(self,
                                                            current_time: float
                                                            ) -> bool:
         prev_timestamp_rounded_to_week = self.__prev_timestamp % SECOND_IN_A_DAY
         current_time_rounded_to_week = current_time % SECOND_IN_A_DAY
         is_week_later = prev_timestamp_rounded_to_week < current_time_rounded_to_week
-        pass
+        local_time_previous = time.localtime(self.__prev_timestamp)
+        local_time_current = time.localtime(current_time)
+
+        for day in self.__days:
+            if local_time_previous.tm_wday < day.value < local_time_current.tm_wday:
+                self.__is_still_due = True
+                return True
+            elif local_time_previous.tm_wday == day.value:
+                if self.is_timepoint_passed_other_timepoint(self.__hour, self.__minutes,
+                                                            local_time_previous.tm_hour,
+                                                            local_time_previous.tm_min):
+                    self.__is_still_due = True
+                    return True
+                else:
+                    return False
+            elif local_time_current.tm_wday == day.value:
+                if not self.is_timepoint_passed_other_timepoint(self.__hour, self.__minutes,
+                                                            local_time_current.tm_hour,
+                                                            local_time_current.tm_min):
+                    self.__is_still_due = True
+                    return True
+                else:
+                    return False
+            elif is_week_later and (local_time_previous.tm_wday < day.value or local_time_current.tm_wday > day.value):
+                self.__is_still_due = True
+                return True
+            else:
+                return False
+
+    def is_timepoint_passed_other_timepoint(self, hour: int, minute: int,
+                                            other_hour: int, other_minute: int) -> bool:
+        if hour > other_hour:
+            return True
+        elif hour == other_hour:
+            if minute > other_minute:
+                return True
+            else:
+                return False
+        else:
+            return False
+
 
     def generate_questions(self,
                            current_time: Optional[Union[float, None]] = None
