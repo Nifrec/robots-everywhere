@@ -30,20 +30,40 @@ import time
 class TestRecurringQuestionSet(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.recurring_question = RecurringQuestionSet({WeekDay(1)}, 7, 30, {Question("test", Variable(str, "my_var"))}, 1616422958)
+        """
+        Scheduled time: Tuesday 7:30
+        Start time: Monday 15:22, 22 March
+        """
+        start_time = 1616422958
+
+        self.recurring_question = RecurringQuestionSet(
+            {WeekDay(1)}, 7, 30,
+            {Question("test", Variable(str, "my_var"))},
+            start_time)
 
     def test_is_due_1(self):
-        test1 = self.recurring_question.is_due(1616595758)
+        """
+        Wednesday 15:22:38
+        """
+        timestamp = 1616595758
+        test1 = self.recurring_question.is_due(timestamp)
         self.assertEqual(test1, True)
 
     def test_is_due_2(self):
-        test2 = self.recurring_question.is_due(1616451758)
+        """
+        Monday 23:22, 22 March
+        """
+        timestamp = 1616451758
+        test2 = self.recurring_question.is_due(timestamp)
         self.assertEqual(test2, False)
 
     def test_is_due_3(self):
-        test3 = self.recurring_question.is_due(1616401358)
-        self.assertRaises(RuntimeError, test3)
-
+        """
+        Monday 9:22
+        """
+        timestamp = 1616401358
+        with self.assertRaises(RuntimeError):
+            self.recurring_question.is_due(timestamp)
 
 
 if __name__ == '__main__':
