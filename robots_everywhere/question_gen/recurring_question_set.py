@@ -30,6 +30,7 @@ from robots_everywhere.question_gen.question_occurrence \
     import QuestionOccurrence
 
 SECOND_IN_A_DAY = 24*60*60
+SECONDS_IN_WEEK = 7*24*60*60
 
 
 class WeekDay(enum.Enum):
@@ -48,8 +49,6 @@ class WeekTimestamp:
         self.day = day
         self.hour = hour
         self.minute = minute
-
-
 
 
 class RecurringQuestionSet:
@@ -102,38 +101,27 @@ class RecurringQuestionSet:
             return False
 
     def __did_a_schedules_timepoint_pass_since_prev_generate_questions(self,
-                                                           current_time: float
-                                                           ) -> bool:
+                                                                       current_time: float
+                                                                       ) -> bool:
         prev_timestamp_rounded_to_week = self.__prev_timestamp % SECOND_IN_A_DAY
         current_time_rounded_to_week = current_time % SECOND_IN_A_DAY
         is_week_later = prev_timestamp_rounded_to_week < current_time_rounded_to_week
-        local_time_previous = time.localtime(self.__prev_timestamp)
-        local_time_current = time.localtime(current_time)
+
+
+        prev_secs_since_mon = self.__prev_timestamp % SECONDS_IN_WEEK
+        curr_secs_since_mon = current_time % SECONDS_IN_WEEK
+        
 
         for day in self.__days:
-            if local_time_previous.tm_wday < day.value < local_time_current.tm_wday:
+            target_secs = day.value*SECOND_IN_A_DAY + self.__hour * 60*60 \
+                + self.__minutes*60
+
+            if is_week_later and target_secs < curr_secs_since_mon:
                 self.__is_still_due = True
-                return True
-            elif local_time_previous.tm_wday == day.value:
-                if self.is_timepoint_passed_other_timepoint(self.__hour, self.__minutes,
-                                                            local_time_previous.tm_hour,
-                                                            local_time_previous.tm_min):
-                    self.__is_still_due = True
-                    return True
-                else:
-                    return False
-            elif local_time_current.tm_wday == day.value:
-                if not self.is_timepoint_passed_other_timepoint(self.__hour, self.__minutes,
-                                                            local_time_current.tm_hour,
-                                                            local_time_current.tm_min):
-                    self.__is_still_due = True
-                    return True
-                else:
-                    return False
-            elif is_week_later and (local_time_previous.tm_wday < day.value or local_time_current.tm_wday > day.value):
+            elif prev_secs_since_mon < target_secs < curr_secs_since_mon:
                 self.__is_still_due = True
-                return True
-        return False
+
+        return self.__is_still_due
 
     def is_timepoint_passed_other_timepoint(self, hour: int, minute: int,
                                             other_hour: int, other_minute: int) -> bool:
@@ -142,11 +130,8 @@ class RecurringQuestionSet:
         elif hour == other_hour:
             if minute > other_minute:
                 return True
-            else:
-                return False
         else:
             return False
-
 
     def generate_questions(self,
                            current_time: Optional[Union[float, None]] = None
@@ -160,3 +145,4 @@ class RecurringQuestionSet:
         self.__prev_timestamp = current_time
 
         return QuestionOccurrence(self.__questions, id=uuid.uuid4().int)
+

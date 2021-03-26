@@ -153,7 +153,7 @@ def setup_vars_table(conn: sqlite3.Connection):
     conn.execute(
         """
         CREATE TABLE variables (
-            var_name INT PRIMARY KEY,
+            var_name TEXT PRIMARY KEY,
             var_type TEXT NOT NULL,
             timestamp INT NOT NULL 
         )
@@ -198,7 +198,7 @@ def __create_table_for_var(conn: sqlite3.Connection, var: Variable):
     CREATE TABLE {var.name} (
         value {value_storage_class} NOT NULL,
         timestamp INT,
-        id INT NOT NULL
+        id INT NOT NULL PRIMARY KEY
     );
     """
     conn.execute(query)

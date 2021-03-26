@@ -69,7 +69,6 @@ class QuestionMessage(VariableMessage):
         assert isinstance(text, str)
         self.__text = text
 
-
     @property
     def text(self) -> str:
         return self.__text
