@@ -490,7 +490,7 @@ style=autoresize</panel_attributes>
 the GUI and the output generation in parallel.
 Python's multiprocessing.Pipe is used to send data between processes.
 Here it will be used to exchange QuestionMessages, AnswerMessages
-and OutputMessages. 
+and FeedbackMessages. 
 The QuestionCommunicator will be able to match a Question
 to its AnswerMessage via their ID. It will also store this
 ID in the corresponding InsertCommand, making it possible to undo
